@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS += -Wall -Wextra -Werror -Wpedantic -g3
 SANITIZE = -fsanitize=address
 LINKERFLAG = -lm
-SRCS = $(wildcard src/*.c)
+SRCS = $(wildcard src/*.c) $(wildcard src/*/*.c)
 OBJS = $(SRCS:.c=.o)
 MAIN = my_zsh
 
