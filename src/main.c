@@ -1,7 +1,10 @@
+#include "environment.h"
 #include <stdio.h>
 
-int main()
+int main(int argc, char* argv[], char* env[])
 {
-    printf("Hello, World!\n");
-    return 0;
+    if (argc) puts(argv[0]);
+    environment.parse(env);
+    environment.print();
+    environment.delete();
 }
