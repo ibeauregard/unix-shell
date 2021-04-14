@@ -1,51 +1,63 @@
 #include "environment.h"
-#include "variable_list.h"
 #include <stdlib.h>
 
-static void parse(char* env[]);
-static void print();
-static void delete();
-Environment environment = {
-        .parse = &parse,
-        .print = &print,
-        .delete = &delete
+static Environment* from_string_array(char* env[]);
+const struct environment_class EnvironmentClass = {
+        .fromStringArray = &from_string_array
 };
 
-static void initialize();
-static void add_variable(char* variable);
-void parse(char* env[])
+typedef struct variable_node VariableNode;
+struct internals {
+    VariableNode* head;
+};
+
+static void insert(Environment* this, Variable* variable);
+static void print(Environment* this);
+static void delete(Environment* this);
+Environment* from_string_array(char* env[])
 {
-    initialize();
+    Environment* this = malloc(sizeof (Environment));
+    this->_internals = malloc(sizeof (struct internals));
+    this->_internals->head = NULL;
     for (int i = 0; env[i]; i++) {
-        add_variable(env[i]);
+        insert(this, VariableClass.fromString(env[i]));
+    }
+    this->print = &print;
+    this->delete = &delete;
+    return this;
+}
+
+struct variable_node {
+    Variable* variable;
+    VariableNode* next;
+};
+
+void insert(Environment* this, Variable* variable)
+{
+    VariableNode* inserted = malloc(sizeof (VariableNode));
+    inserted->variable = variable;
+    inserted->next = this->_internals->head;
+    this->_internals->head = inserted;
+}
+
+void print(Environment* this)
+{
+    VariableNode* node = this->_internals->head;
+    while (node) {
+        node->variable->print(node->variable);
+        node = node->next;
     }
 }
 
-struct internals {
-    VariableList* variableList;
-};
-
-void initialize()
+void delete(Environment* this)
 {
-    environment._internals = malloc(sizeof (struct internals));
-    environment._internals->variableList = VariableListClass.new();
-}
-
-void add_variable(char* variable)
-{
-    VariableList *list = environment._internals->variableList;
-    list->insert(list, VariableClass.fromString(variable));
-}
-
-void print()
-{
-    VariableList *list = environment._internals->variableList;
-    list->print(list);
-}
-
-void delete()
-{
-    struct internals* internals = environment._internals;
-    internals->variableList->delete(internals->variableList);
-    free(internals); internals = NULL;
+    VariableNode* node = this->_internals->head;
+    while (node) {
+        VariableNode* next = node->next;
+        node->variable->delete(node->variable);
+        free(node);
+        node = next;
+    }
+    free(this->_internals);
+    free(this);
 }

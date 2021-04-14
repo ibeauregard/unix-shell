@@ -1,13 +1,17 @@
-#ifndef ENVIRONMENT_H
-#define ENVIRONMENT_H
+#ifndef ENVIRONMENT
+#define ENVIRONMENT
 
-typedef struct environment {
+#include "variable.h"
+
+typedef struct environment Environment;
+struct environment {
     struct internals* _internals;
-    void (*parse)(char* env[]);
-    void (*print)();
-    void (*delete)();
-} Environment;
+    void(*print)(Environment* this);
+    void(*delete)(Environment* this);
+};
 
-extern Environment environment;
+extern const struct environment_class {
+    Environment* (*fromStringArray)(char* env[]);
+} EnvironmentClass;
 
 #endif
