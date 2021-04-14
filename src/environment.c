@@ -28,23 +28,24 @@ struct internals {
 void initialize()
 {
     environment._internals = malloc(sizeof (struct internals));
-    environment._internals->variableList = variableList.initialize();
+    environment._internals->variableList = VariableListClass.new();
 }
 
 void add_variable(char* variable)
 {
     VariableList *list = environment._internals->variableList;
-    list->insert(VariableClass.fromString(variable));
+    list->insert(list, VariableClass.fromString(variable));
 }
 
 void print()
 {
-    environment._internals->variableList->print();
+    VariableList *list = environment._internals->variableList;
+    list->print(list);
 }
 
 void delete()
 {
     struct internals* internals = environment._internals;
-    internals->variableList->delete();
+    internals->variableList->delete(internals->variableList);
     free(internals); internals = NULL;
 }

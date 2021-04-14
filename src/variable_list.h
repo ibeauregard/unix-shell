@@ -6,12 +6,13 @@
 typedef struct variable_list VariableList;
 struct variable_list {
     struct internals* _internals;
-    VariableList* (*initialize)();
-    void (*insert)(Variable* variable);
-    void(*print)();
-    void(*delete)();
+    void (*insert)(VariableList* this, Variable* variable);
+    void(*print)(VariableList* this);
+    void(*delete)(VariableList* this);
 };
 
-extern VariableList variableList;
+extern const struct variable_list_class {
+    VariableList* (*new)();
+} VariableListClass;
 
 #endif

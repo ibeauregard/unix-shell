@@ -1,15 +1,9 @@
 #include "variable_list.h"
 #include <stdlib.h>
 
-static VariableList* initialize();
-static void insert(Variable* variable);
-static void print();
-static void delete();
-VariableList variableList = {
-        .initialize = &initialize,
-        .insert = &insert,
-        .print = &print,
-        .delete = &delete
+static VariableList* new();
+const struct variable_list_class VariableListClass = {
+        .new = &new
 };
 
 typedef struct variable_node VariableNode;
@@ -17,11 +11,18 @@ struct internals {
     VariableNode* head;
 };
 
-VariableList* initialize()
+static void insert(VariableList* this, Variable* variable);
+static void print(VariableList* this);
+static void delete(VariableList* this);
+VariableList* new()
 {
-    variableList._internals = malloc(sizeof (struct internals));
-    variableList._internals->head = NULL;
-    return &variableList;
+    VariableList* this = malloc(sizeof (VariableList));
+    this->_internals = malloc(sizeof (struct internals));
+    this->_internals->head = NULL;
+    this->insert = &insert;
+    this->print = &print;
+    this->delete = &delete;
+    return this;
 }
 
 struct variable_node {
@@ -29,31 +30,32 @@ struct variable_node {
     VariableNode* next;
 };
 
-void insert(Variable* variable)
+void insert(VariableList* this, Variable* variable)
 {
     VariableNode* inserted = malloc(sizeof (VariableNode));
     inserted->variable = variable;
-    inserted->next = variableList._internals->head;
-    variableList._internals->head = inserted;
+    inserted->next = this->_internals->head;
+    this->_internals->head = inserted;
 }
 
-void print()
+void print(VariableList* this)
 {
-    VariableNode* node = variableList._internals->head;
+    VariableNode* node = this->_internals->head;
     while (node) {
         node->variable->print(node->variable);
         node = node->next;
     }
 }
 
-void delete()
+void delete(VariableList* this)
 {
-    VariableNode* node = variableList._internals->head;
+    VariableNode* node = this->_internals->head;
     while (node) {
         VariableNode* next = node->next;
         node->variable->delete(node->variable);
         free(node);
         node = next;
     }
-    free(variableList._internals);
+    free(this->_internals);
+    free(this);
 }
