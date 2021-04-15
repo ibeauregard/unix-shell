@@ -5,6 +5,7 @@
 
 extern struct shell {
     Environment* environment;
+    void (*delete)();
 } shell;
 
 #endif

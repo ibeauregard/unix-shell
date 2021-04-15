@@ -1,3 +1,11 @@
 #include "shell.h"
 
-struct shell shell;
+static void delete();
+struct shell shell = {
+        .delete = &delete
+};
+
+void delete()
+{
+    shell.environment->delete(shell.environment);
+}

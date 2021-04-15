@@ -1,14 +1,12 @@
 #include "environment.h"
 #include "shell.h"
-#include <stdio.h>
 #include <stdlib.h>
 
 int main(int argc, char* argv[], char* envp[])
 {
-    if (argc) puts(argv[0]);
-    Environment* environment = EnvironmentClass.fromStringArray(envp);
-    shell.environment = environment;
-    environment->print(environment);
-    environment->delete(environment);
+    (void)argc, (void)argv;
+    shell.environment = EnvironmentClass.fromStringArray(envp);
+    shell.environment->print(shell.environment);
+    shell.delete();
     return EXIT_SUCCESS;
 }
