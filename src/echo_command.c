@@ -12,17 +12,16 @@ struct internals {
 };
 
 static void execute(Command* this);
-static void delete(Command* this);
 Command* with_args(char** argArray)
 {
     Command* this = malloc(sizeof (Command));
     this->_internals = malloc(sizeof (struct internals));
     this->_internals->strings = argArray;
     this->execute = &execute;
-    this->delete = &delete;
     return this;
 }
 
+static void delete(Command* this);
 void execute(Command* this)
 {
     char** strings = this->_internals->strings;
@@ -30,6 +29,7 @@ void execute(Command* this)
         printf("%s ", strings[i]);
     }
     puts("");
+    delete(this);
 }
 
 void delete(Command* this)

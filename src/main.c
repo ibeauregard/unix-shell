@@ -9,13 +9,7 @@ int main(int argc, char* argv[], char* envp[])
 {
     (void)argc, (void)argv;
     shell.environment = EnvironmentClass.fromStringArray(envp);
-    shell.environment->print(shell.environment);
-
-    Command* command = CommandFactory.fromCommandLine(CommandLineClass.new());
-    command->execute(command);
-    command->delete(command);
-
-
+    shell.execute(CommandLineClass.new());
     shell.delete();
     return EXIT_SUCCESS;
 }
