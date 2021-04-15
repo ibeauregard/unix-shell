@@ -11,7 +11,7 @@ struct environment {
 };
 
 extern const struct environment_class {
-    Environment* (*fromStringArray)(char* env[]);
+    Environment* (*fromStringArray)(char* envp[]);
 } EnvironmentClass;
 
 #endif

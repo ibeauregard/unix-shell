@@ -1,7 +1,7 @@
 #include "environment.h"
 #include <stdlib.h>
 
-static Environment* from_string_array(char* env[]);
+static Environment* from_string_array(char* envp[]);
 const struct environment_class EnvironmentClass = {
         .fromStringArray = &from_string_array
 };
@@ -14,13 +14,13 @@ struct internals {
 static void insert(Environment* this, Variable* variable);
 static void print(Environment* this);
 static void delete(Environment* this);
-Environment* from_string_array(char* env[])
+Environment* from_string_array(char* envp[])
 {
     Environment* this = malloc(sizeof (Environment));
     this->_internals = malloc(sizeof (struct internals));
     this->_internals->head = NULL;
-    for (int i = 0; env[i]; i++) {
-        insert(this, VariableClass.fromString(env[i]));
+    for (int i = 0; envp[i]; i++) {
+        insert(this, VariableClass.fromString(envp[i]));
     }
     this->print = &print;
     this->delete = &delete;
