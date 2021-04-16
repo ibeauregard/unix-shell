@@ -32,6 +32,7 @@ void execute(Command* this)
     pid_t pid = fork();
     struct internals* internals = this->_internals;
     if (pid == 0) {
+        // TODO: convert environment to string array (change 3rd arg)
         execve(internals->pathname, internals->args_array, NULL);
     }
     int status;
