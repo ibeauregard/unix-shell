@@ -26,18 +26,21 @@ typedef struct string_node StringNode;
 struct internals {
     StringNode* head;
     StringNode* tail;
+    size_t length;
 };
 
 static char* next(StringList* this);
 static bool is_empty(StringList* this);
+static char** to_string_array(StringList* this);
 static void delete(StringList* this);
 StringList* new()
 {
     StringList* this = malloc(sizeof (StringList));
     this->_internals = malloc(sizeof (struct internals));
-    this->_internals->head = this->_internals->tail = NULL;
+    this->_internals->head = this->_internals->tail = NULL; this->_internals->length = 0;
     this->next = &next;
     this->isEmpty = &is_empty;
+    this->toStringArray = &to_string_array;
     this->delete = &delete;
     return this;
 }
@@ -57,6 +60,7 @@ void append(StringList* this, char* string)
     } else {
         internals->tail = internals->tail->next = appended;
     }
+    this->_internals->length++;
 }
 
 bool is_empty(StringList* this)
@@ -72,7 +76,19 @@ char* next(StringList* this)
     free(current_head); current_head = NULL;
     this->_internals->head = new_head;
     if (!new_head) this->_internals->tail = NULL;
+    this->_internals->length--;
     return popped;
+}
+
+char** to_string_array(StringList* this)
+{
+    char** array = malloc((this->_internals->length + 1) * sizeof (char*));
+    size_t i;
+    for (i = 0; !is_empty(this); i++) {
+        array[i] = next(this);
+    }
+    array[i] = NULL;
+    return array;
 }
 
 void delete(StringList* this)
