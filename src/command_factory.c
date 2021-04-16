@@ -1,7 +1,7 @@
 #include "command_factory.h"
 #include "echo_command.h"
+#include "not_found_command.h"
 #include <string.h>
-#include <stdlib.h>
 
 static Command* from_command_line(CommandLine* line);
 const struct command_factory CommandFactory = {
@@ -10,13 +10,9 @@ const struct command_factory CommandFactory = {
 
 Command* from_command_line(CommandLine* line)
 {
-    Command* command;
     if (!strcmp(line->command, "echo")) {
-        command = EchoCommand.withArgs(line->arguments);
+        return EchoCommand.withArgs(line->arguments);
     } else {
-        command = NULL;
+        return NotFoundCommand.withName(line->command);
     }
-    free(line->command);
-    free(line); line = NULL;
-    return command;
 }

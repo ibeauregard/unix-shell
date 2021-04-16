@@ -1,8 +1,6 @@
 #include "shell.h"
 #include "command.h"
-#include "echo_command.h"
-#include "not_found_command.h"
-#include <string.h>
+#include "command_factory.h"
 
 static void execute(CommandLine* line);
 static void delete();
@@ -13,12 +11,7 @@ struct shell shell = {
 
 void execute(CommandLine* line)
 {
-    Command* command;
-    if (!strcmp(line->command, "echo")) {
-        command = EchoCommand.withArgs(line->arguments);
-    } else {
-        command = NotFoundCommand.withName(line->command);
-    }
+    Command* command = CommandFactory.fromCommandLine(line);
     command->execute(command);
     line->delete(line);
 }
