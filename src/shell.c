@@ -1,10 +1,8 @@
 #include "shell.h"
 #include "command.h"
 #include "echo_command.h"
+#include "not_found_command.h"
 #include <string.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <unistd.h>
 
 static void execute(CommandLine* line);
 static void delete();
@@ -16,14 +14,12 @@ struct shell shell = {
 void execute(CommandLine* line)
 {
     Command* command;
-    bool failure = false;
     if (!strcmp(line->command, "echo")) {
         command = EchoCommand.withArgs(line->arguments);
     } else {
-        dprintf(STDERR_FILENO, "my_zsh: command not found: %s\n", line->command);
-        failure = true;
+        command = NotFoundCommand.withName(line->command);
     }
-    if (!failure) command->execute(command);
+    command->execute(command);
     line->delete(line);
 }
 

@@ -8,6 +8,7 @@ int main(int argc, char* argv[], char* envp[])
     (void)argc, (void)argv;
     shell.environment = EnvironmentClass.fromStringArray(envp);
     shell.execute(CommandLineClass.fromString("echo roger cyr"));
+    shell.execute(CommandLineClass.fromString("pickup"));
     shell.delete();
     return EXIT_SUCCESS;
 }
