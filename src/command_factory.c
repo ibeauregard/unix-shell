@@ -1,4 +1,5 @@
 #include "command_factory.h"
+#include "null_command.h"
 #include "echo_command.h"
 #include "external_command.h"
 #include <string.h>
@@ -10,7 +11,9 @@ const struct command_factory CommandFactory = {
 
 Command* from_command_line(CommandLine* line)
 {
-    if (!strcmp(line->command, "echo")) {
+    if (!line->command) {
+        return NullCommand;
+    } if (!strcmp(line->command, "echo")) {
         return EchoCommand.withArgs(line->arguments);
     } else {
         return ExternalCommand.fromCommandLine(line);
