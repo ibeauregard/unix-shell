@@ -26,7 +26,9 @@ void execute(Command* this)
 {
     StringList* arguments = this->_internals->arguments;
     while (!arguments->isEmpty(arguments)) {
-        printf("%s ", arguments->next(arguments));
+        char* argument = arguments->next(arguments);
+        printf("%s ", argument);
+        free(argument);
     }
     puts("");
     delete(this);
