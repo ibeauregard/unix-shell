@@ -2,20 +2,20 @@
 #include <stdlib.h>
 #include <string.h>
 
-static StringList* split(char* string);
+static StringList* split(char* string, char sep);
 const struct string_list_class StringListClass = {
         .split = &split
 };
 
 static StringList* new();
 static void append(StringList* this, char* string);
-StringList* split(char* string)
+StringList* split(char* string, char sep)
 {
     StringList* this = new();
     while (*string) {
-        for (; *string && *string == ' '; string++);
+        for (; *string && *string == sep; string++);
         int j;
-        for (j = 0; string[j] && string[j] != ' '; ++j);
+        for (j = 0; string[j] && string[j] != sep; ++j);
         if (j) append(this, strndup(string, j));
         string += j;
     }

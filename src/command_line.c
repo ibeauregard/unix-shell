@@ -11,7 +11,7 @@ static void delete(CommandLine* this);
 CommandLine* from_string(char* string)
 {
     CommandLine* this = malloc(sizeof (CommandLine));
-    StringList* tokenList = StringListClass.split(string);
+    StringList* tokenList = StringListClass.split(string, ' ');
     this->command = tokenList->next(tokenList);
     this->arguments = tokenList;
     this->delete = &delete;

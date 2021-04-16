@@ -13,7 +13,7 @@ struct string_list {
 };
 
 extern const struct string_list_class {
-    StringList* (*split)(char* string);
+    StringList* (*split)(char* string, char sep);
 } StringListClass;
 
 #endif
