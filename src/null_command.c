@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 static void execute(Command* this);
-const Command* NullCommand = &(Command){
+Command* NullCommand = &(Command){
         .execute = &execute
 };
 
