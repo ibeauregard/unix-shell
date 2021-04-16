@@ -3,7 +3,6 @@
 #include "echo_command.h"
 #include <string.h>
 #include <stdbool.h>
-#include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
 
@@ -24,9 +23,8 @@ void execute(CommandLine* line)
         dprintf(STDERR_FILENO, "my_zsh: command not found: %s\n", line->command);
         failure = true;
     }
-    free(line->command);
-    free(line); line = NULL;
     if (!failure) command->execute(command);
+    line->delete(line);
 }
 
 void delete()

@@ -2,21 +2,21 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static Command* with_args(char** argArray);
+static Command* with_args(StringList* arguments);
 const struct echo_command EchoCommand = {
         .withArgs = &with_args
 };
 
 struct internals {
-    char** strings;
+    StringList* arguments;
 };
 
 static void execute(Command* this);
-Command* with_args(char** argArray)
+Command* with_args(StringList* arguments)
 {
     Command* this = malloc(sizeof (Command));
     this->_internals = malloc(sizeof (struct internals));
-    this->_internals->strings = argArray;
+    this->_internals->arguments = arguments;
     this->execute = &execute;
     return this;
 }
@@ -24,9 +24,9 @@ Command* with_args(char** argArray)
 static void delete(Command* this);
 void execute(Command* this)
 {
-    char** strings = this->_internals->strings;
-    for (size_t i = 0; strings[i]; i++) {
-        printf("%s ", strings[i]);
+    StringList* arguments = this->_internals->arguments;
+    while (!arguments->isEmpty(arguments)) {
+        printf("%s ", arguments->next(arguments));
     }
     puts("");
     delete(this);
@@ -34,11 +34,6 @@ void execute(Command* this)
 
 void delete(Command* this)
 {
-    char** strings = this->_internals->strings;
-    for (size_t i = 0; strings[i]; i++) {
-        free(strings[i]);
-    }
-    free(this->_internals->strings);
     free(this->_internals);
     free(this); this = NULL;
 }
