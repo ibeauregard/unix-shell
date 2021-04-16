@@ -9,7 +9,7 @@ int main(int argc, char* argv[], char* envp[])
     shell.environment = EnvironmentClass.fromStringArray(envp);
     shell.execute(CommandLineClass.fromString(""));
     shell.execute(CommandLineClass.fromString("echo roger cyr"));
-    shell.execute(CommandLineClass.fromString("pickup eric"));
+    shell.execute(CommandLineClass.fromString("/bin/ls -a"));
     shell.delete();
     return EXIT_SUCCESS;
 }

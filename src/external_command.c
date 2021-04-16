@@ -2,6 +2,7 @@
 #include "not_found_command.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/wait.h>
 
 static Command* from_command_line(CommandLine* commandLine);
 const struct external_command ExternalCommand = {
@@ -28,9 +29,15 @@ Command* from_command_line(CommandLine* commandLine)
 static void delete(Command* this);
 void execute(Command* this)
 {
-    for (size_t i = 0; this->_internals->args_array[i]; i++) {
-        printf("%s\n", this->_internals->args_array[i]);
+    pid_t pid = fork();
+    struct internals* internals = this->_internals;
+    if (pid == 0) {
+        execve(internals->pathname, internals->args_array, NULL);
     }
+    int status;
+    do {
+        waitpid(pid, &status, WUNTRACED);
+    } while (!WIFEXITED(status) && !WIFSIGNALED(status));
     delete(this);
 }
 
