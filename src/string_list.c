@@ -78,7 +78,8 @@ char* next(StringList* this)
 void delete(StringList* this)
 {
     while (!is_empty(this)) {
-        next(this);
+        char* string = next(this);
+        free(string);
     }
     free(this->_internals);
     free(this); this = NULL;
