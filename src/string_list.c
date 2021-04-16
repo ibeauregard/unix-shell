@@ -29,6 +29,7 @@ struct internals {
     size_t length;
 };
 
+static char* peek(StringList* this);
 static char* next(StringList* this);
 static bool is_empty(StringList* this);
 static char** to_string_array(StringList* this);
@@ -38,6 +39,7 @@ StringList* new()
     StringList* this = malloc(sizeof (StringList));
     this->_internals = malloc(sizeof (struct internals));
     this->_internals->head = this->_internals->tail = NULL; this->_internals->length = 0;
+    this->peek = &peek;
     this->next = &next;
     this->isEmpty = &is_empty;
     this->toStringArray = &to_string_array;
@@ -66,6 +68,12 @@ void append(StringList* this, char* string)
 bool is_empty(StringList* this)
 {
     return !this->_internals->head;
+}
+
+char* peek(StringList* this)
+{
+    StringNode* head = this->_internals->head;
+    return head ? head->value : NULL;
 }
 
 char* next(StringList* this)

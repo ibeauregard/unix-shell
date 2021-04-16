@@ -12,7 +12,7 @@ CommandLine* from_string(char* string)
 {
     CommandLine* this = malloc(sizeof (CommandLine));
     StringList* tokenList = StringListClass.split(string, ' ');
-    this->command = !tokenList->isEmpty(tokenList) ? tokenList->next(tokenList) : NULL;
+    this->command = tokenList->peek(tokenList);
     this->arguments = tokenList;
     this->delete = &delete;
     return this;
@@ -20,7 +20,6 @@ CommandLine* from_string(char* string)
 
 void delete(CommandLine* this)
 {
-    free(this->command);
     this->arguments->delete(this->arguments);
     free(this); this = NULL;
 }

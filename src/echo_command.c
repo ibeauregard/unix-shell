@@ -25,6 +25,7 @@ static void delete(Command* this);
 void execute(Command* this)
 {
     StringList* arguments = this->_internals->arguments;
+    free(arguments->next(arguments)); // do not print built-in name
     while (!arguments->isEmpty(arguments)) {
         char* argument = arguments->next(arguments);
         printf("%s ", argument);
