@@ -14,8 +14,9 @@ struct string_list {
     void (*delete)(StringList* this);
 };
 
+typedef char* StringTransformation(char* string);
 extern const struct string_list_class {
-    StringList* (*split)(char* string, char sep);
+    StringList* (*split)(char* string, char sep, StringTransformation* transformation);
 } StringListClass;
 
 #endif

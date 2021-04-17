@@ -1,25 +1,22 @@
 #include "string_list.h"
-#include "shell.h"
-#include "environment.h"
 #include <stdlib.h>
 #include <string.h>
 
-static StringList* split(char* string, char sep);
+static StringList* split(char* string, char sep, StringTransformation* transformation);
 const struct string_list_class StringListClass = {
         .split = &split
 };
 
 static StringList* new();
-char* get_appended_value(char* string);
 static void append(StringList* this, char* string);
-StringList* split(char* string, char sep)
+StringList* split(char* string, char sep, StringTransformation* transformation)
 {
     StringList* this = new();
     while (*string) {
         for (; *string && *string == sep; string++);
         int j;
         for (j = 0; string[j] && string[j] != sep; ++j);
-        if (j) append(this, get_appended_value(strndup(string, j)));
+        if (j) append(this, transformation(strndup(string, j)));
         string += j;
     }
     return this;
@@ -66,17 +63,6 @@ void append(StringList* this, char* string)
         internals->tail = internals->tail->next = appended;
     }
     this->_internals->length++;
-}
-
-char* get_appended_value(char* string)
-{
-    if (!string || strlen(string) == 0 || string[0] != '$') {
-        return string;
-    }
-    Environment* environment = shell.environment;
-    char* value = environment->getValueFromId(environment, string + 1);
-    free(string);
-    return value;
 }
 
 bool is_empty(StringList* this)
