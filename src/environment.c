@@ -54,11 +54,7 @@ char* get_value_from_id(Environment* this, char* id)
     while (node && strcmp(id, node->variable->getId(node->variable)) != 0) {
         node = node->next;
     }
-    if (!node) {
-        char* value = malloc(1); value[0] = 0;
-        return value;
-    }
-    return strdup(node->variable->getValue(node->variable));
+    return strdup(node ? node->variable->getValue(node->variable) : "");
 }
 
 void print(Environment* this)
