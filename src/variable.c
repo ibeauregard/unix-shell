@@ -9,6 +9,8 @@ const struct variable_class VariableClass = {
 };
 
 static struct internals* initialize_internals(char* variable);
+static char* get_id(Variable* this);
+static char* get_value(Variable* this);
 static void print(Variable* this);
 static char* to_string(Variable* this);
 static void delete(Variable* this);
@@ -16,6 +18,8 @@ Variable* from_string(char* string)
 {
     Variable* this = malloc(sizeof (Variable));
     this->_internals = initialize_internals(string);
+    this->getId = &get_id;
+    this->getValue = &get_value;
     this->print = &print;
     this->toString = &to_string;
     this->delete = &delete;
@@ -34,6 +38,16 @@ struct internals* initialize_internals(char* variable)
     internals->id = strndup(variable, equal_sign_index);
     internals->value = strdup(&variable[equal_sign_index + 1]);
     return internals;
+}
+
+char* get_id(Variable* this)
+{
+    return this->_internals->id;
+}
+
+char* get_value(Variable* this)
+{
+    return this->_internals->value;
 }
 
 void print(Variable* this)

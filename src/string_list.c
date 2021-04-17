@@ -1,4 +1,6 @@
 #include "string_list.h"
+#include "shell.h"
+#include "environment.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -52,10 +54,11 @@ struct string_node {
     StringNode* next;
 };
 
+char* get_appended_value(char* string);
 void append(StringList* this, char* string)
 {
     StringNode* appended = malloc(sizeof (StringNode));
-    appended->value = string; appended->next = NULL;
+    appended->value = get_appended_value(string); appended->next = NULL;
     struct internals* internals = this->_internals;
     if (is_empty(this)) {
         internals->head = internals->tail = appended;
@@ -63,6 +66,17 @@ void append(StringList* this, char* string)
         internals->tail = internals->tail->next = appended;
     }
     this->_internals->length++;
+}
+
+char* get_appended_value(char* string)
+{
+    if (!string || strlen(string) == 0 || string[0] != '$') {
+        return string;
+    }
+    Environment* environment = shell.environment;
+    char* value = environment->getValueFromId(environment, string + 1);
+    free(string);
+    return value;
 }
 
 bool is_empty(StringList* this)

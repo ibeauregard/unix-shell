@@ -4,6 +4,8 @@
 typedef struct variable Variable;
 struct variable {
     struct internals* _internals;
+    char* (*getId)(Variable* this);
+    char* (*getValue)(Variable* this);
     void (*print)(Variable* this);
     char* (*toString)(Variable* this);
     void (*delete)(Variable* this);

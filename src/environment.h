@@ -6,7 +6,8 @@
 typedef struct environment Environment;
 struct environment {
     struct internals* _internals;
-    void(*print)(Environment* this);
+    char* (*getValueFromId)(Environment* this, char* id);
+    void (*print)(Environment* this);
     char** (*serialize)(Environment* this);
     void(*delete)(Environment* this);
 };

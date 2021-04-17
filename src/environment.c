@@ -1,5 +1,6 @@
 #include "environment.h"
 #include <stdlib.h>
+#include <string.h>
 
 static Environment* from_string_array(char* envp[]);
 const struct environment_class EnvironmentClass = {
@@ -13,6 +14,7 @@ struct internals {
 };
 
 static void insert(Environment* this, Variable* variable);
+static char* get_value_from_id(Environment* this, char* id);
 static void print(Environment* this);
 static char** serialize(Environment* this);
 static void delete(Environment* this);
@@ -26,6 +28,7 @@ Environment* from_string_array(char* envp[])
         insert(this, VariableClass.fromString(envp[i]));
     }
     this->_internals->length = i;
+    this->getValueFromId = &get_value_from_id;
     this->print = &print;
     this->serialize = &serialize;
     this->delete = &delete;
@@ -43,6 +46,19 @@ void insert(Environment* this, Variable* variable)
     inserted->variable = variable;
     inserted->next = this->_internals->head;
     this->_internals->head = inserted;
+}
+
+char* get_value_from_id(Environment* this, char* id)
+{
+    VariableNode* node = this->_internals->head;
+    while (node && strcmp(id, node->variable->getId(node->variable)) != 0) {
+        node = node->next;
+    }
+    if (!node) {
+        char* value = malloc(1); value[0] = 0;
+        return value;
+    }
+    return strdup(node->variable->getValue(node->variable));
 }
 
 void print(Environment* this)
