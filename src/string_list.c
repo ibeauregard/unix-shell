@@ -10,6 +10,7 @@ const struct string_list_class StringListClass = {
 };
 
 static StringList* new();
+char* get_appended_value(char* string);
 static void append(StringList* this, char* string);
 StringList* split(char* string, char sep)
 {
@@ -18,7 +19,7 @@ StringList* split(char* string, char sep)
         for (; *string && *string == sep; string++);
         int j;
         for (j = 0; string[j] && string[j] != sep; ++j);
-        if (j) append(this, strndup(string, j));
+        if (j) append(this, get_appended_value(strndup(string, j)));
         string += j;
     }
     return this;
@@ -54,11 +55,10 @@ struct string_node {
     StringNode* next;
 };
 
-char* get_appended_value(char* string);
 void append(StringList* this, char* string)
 {
     StringNode* appended = malloc(sizeof (StringNode));
-    appended->value = get_appended_value(string); appended->next = NULL;
+    appended->value = string; appended->next = NULL;
     struct internals* internals = this->_internals;
     if (is_empty(this)) {
         internals->head = internals->tail = appended;
