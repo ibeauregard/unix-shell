@@ -1,5 +1,7 @@
 #include "external_command.h"
 #include "not_found_command.h"
+#include "environment.h"
+#include "shell.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/wait.h>
@@ -30,10 +32,10 @@ static void delete(Command* this);
 void execute(Command* this)
 {
     pid_t pid = fork();
-    struct internals* internals = this->_internals;
     if (pid == 0) {
-        // TODO: convert environment to string array (change 3rd arg)
-        execve(internals->pathname, internals->args_array, NULL);
+        struct internals* internals = this->_internals;
+        Environment* environment = shell.environment;
+        execve(internals->pathname, internals->args_array, environment->serialize(environment));
     }
     int status;
     do {
