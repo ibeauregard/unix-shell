@@ -4,7 +4,9 @@
 #include "shell.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 
 static Command* from_command_line(CommandLine* commandLine);
 const struct external_command ExternalCommand = {
@@ -35,11 +37,12 @@ void execute(Command* this)
     delete(this);
 }
 
+static char* ordinary_search(char* command);
 static char* search_in_path(char* command);
 char* get_command_pathname(Command* this)
 {
     char* command = this->_internals->commandLine->command;
-    return strchr(command, '/') ? NULL : search_in_path(command);
+    return strchr(command, '/') ? ordinary_search(command) : search_in_path(command);
 }
 
 void do_execute(Command* this, char* pathname)
@@ -54,6 +57,16 @@ void do_execute(Command* this, char* pathname)
     do {
         waitpid(pid, &status, WUNTRACED);
     } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+}
+
+char* ordinary_search(char* command)
+{
+    struct stat statbuf;
+    if (stat(command, &statbuf) == -1) {
+        dprintf(STDERR_FILENO, "my_zsh: no such file or directory: %s\n", command);
+        return NULL;
+    }
+    return command;
 }
 
 char* search_in_path(char* command)
