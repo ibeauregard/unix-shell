@@ -65,7 +65,7 @@ static bool command_in_directory(char* command, char* dirpath);
 char* search_in_path(char* command)
 {
     char* path = shell.environment->getValueFromId(shell.environment, "PATH");
-    StringList* pathElements = StringListClass.split(path, ':');
+    StringList* pathElements = StringListClass.split(path, ':'); free(path);
     char* pathname = NULL;
     while (!pathname && !pathElements->isEmpty(pathElements)) {
         char* directory = pathElements->next(pathElements);
