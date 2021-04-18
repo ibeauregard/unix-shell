@@ -40,13 +40,14 @@ void execute(Command* this)
     } else {
         dprintf(STDERR_FILENO, "my_zsh: Command not found: %s\n", invokedCommand);
     }
+    free(pathname);
     delete(this);
 }
 
 static char* search_in_path(char* command);
 char* get_command_pathname(char* command)
 {
-    return strchr(command, '/') ? command : search_in_path(command);
+    return strchr(command, '/') ? strdup(command) : search_in_path(command);
 }
 
 static void child_process_execute(Command* this, char* pathname);
