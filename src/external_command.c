@@ -12,8 +12,7 @@ const struct external_command ExternalCommand = {
 };
 
 struct internals {
-    char* pathname;
-    char** args_array;
+    CommandLine* commandLine;
 };
 
 static void execute(Command* this);
@@ -21,21 +20,21 @@ Command* from_command_line(CommandLine* commandLine)
 {
     Command* this = malloc(sizeof (Command));
     this->_internals = malloc(sizeof (struct internals));
-    this->_internals->pathname = commandLine->command;
-    StringList* arguments = commandLine->arguments;
-    this->_internals->args_array = arguments->toStringArray(arguments);
+    this->_internals->commandLine = commandLine;
     this->execute = &execute;
     return this;
 }
 
+static char* get_command_pathname(Command* this);
 static void delete(Command* this);
 void execute(Command* this)
 {
+    char* pathname = get_command_pathname(this);
     pid_t pid = fork();
     if (pid == 0) {
-        struct internals* internals = this->_internals;
+        StringList* arguments = this->_internals->commandLine->arguments;
         Environment* environment = shell.environment;
-        execve(internals->pathname, internals->args_array, environment->serialize(environment));
+        execve(pathname, arguments->toStringArray(arguments), environment->serialize(environment));
     }
     int status;
     do {
@@ -44,13 +43,13 @@ void execute(Command* this)
     delete(this);
 }
 
+char* get_command_pathname(Command* this)
+{
+    return this->_internals->commandLine->command;
+}
+
 void delete(Command* this)
 {
-    char** args = this->_internals->args_array;
-    for (size_t i = 0; args[i]; i++) {
-        free(args[i]);
-    }
-    free(args);
     free(this->_internals);
     free(this); this = NULL;
 }
