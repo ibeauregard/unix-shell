@@ -6,7 +6,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <sys/wait.h>
-#include <sys/stat.h>
 #include <errno.h>
 
 static Command* from_command_line(CommandLine* commandLine);
