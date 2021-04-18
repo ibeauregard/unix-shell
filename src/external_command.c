@@ -69,7 +69,9 @@ void child_process_execute(Command* this, char* pathname)
     char** envp = environment->serialize(environment);
     execve(pathname, argv, envp);
     dprintf(STDERR_FILENO, "my_zsh: %s: %s\n", strerror(errno), pathname);
-    arguments->delete(arguments);
+    for (size_t i = 0; argv[i]; i++) {
+        free(argv[i]);
+    }
     for (size_t i = 0; envp[i]; i++) {
         free(envp[i]);
     }
