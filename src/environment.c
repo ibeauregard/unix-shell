@@ -74,7 +74,7 @@ void set_variable(Environment* this, Variable* variable, bool overwrite)
     }
     if (!seen) {
         insert(this, variable);
-    } else {
+    } else if (!overwrite) {
         variable->delete(variable);
     }
 }

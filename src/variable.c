@@ -71,9 +71,7 @@ char* to_string(Variable* this)
 {
     struct internals* internals = this->_internals;
     char* string = malloc(strlen(internals->id) + strlen(internals->value) + 2);
-    strcpy(string, internals->id);
-    strcat(string, "=");
-    strcat(string, internals->value);
+    strcat(strcat(strcpy(string, internals->id), "="), internals->value);
     return string;
 }
 
