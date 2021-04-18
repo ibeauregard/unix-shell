@@ -63,10 +63,15 @@ char* search_in_path(char* command)
 
 void child_process_execute(Command* this, char* pathname)
 {
-    StringList* arguments = this->_internals->commandLine->arguments;
+    StringList* arg_list = this->_internals->commandLine->arguments;
+    char** arguments = arg_list->toStringArray(arg_list);
     Environment* environment = shell.environment;
-    execve(pathname, arguments->toStringArray(arguments), environment->serialize(environment));
+    execve(pathname, arguments, environment->serialize(environment));
     dprintf(STDERR_FILENO, "my_zsh: %s: %s\n", strerror(errno), pathname);
+    for (size_t i = 0; arguments[i]; i++) {
+        free(arguments[i]);
+    }
+    free(arguments);
     exit(EXIT_FAILURE);
 }
 
