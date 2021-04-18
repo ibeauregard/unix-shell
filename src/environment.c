@@ -67,7 +67,7 @@ void set_variable(Environment* this, Variable* variable, bool overwrite)
     while (!seen && node) {
         Variable* existingVariable = node->variable;
         if (!strcmp(existingVariable->getId(existingVariable), variable->getId(variable))) {
-            if (overwrite) existingVariable->setValue(existingVariable, variable->getValue(variable));
+            if (overwrite) existingVariable->setValue(existingVariable, strdup(variable->getValue(variable)));
             seen = true;
         }
         node = node->next;
