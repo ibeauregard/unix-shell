@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <sys/wait.h>
 #include <errno.h>
+#include <dirent.h>
 
 static Command* from_command_line(CommandLine* commandLine);
 const struct external_command ExternalCommand = {
@@ -27,20 +28,24 @@ Command* from_command_line(CommandLine* commandLine)
     return this;
 }
 
-static char* get_command_pathname(Command* this);
+static char* get_command_pathname(char* command);
 static void fork_and_execute(Command* this, char* pathname);
 static void delete(Command* this);
 void execute(Command* this)
 {
-    char* pathname = get_command_pathname(this);
-    if (pathname) fork_and_execute(this, pathname);
+    char* invokedCommand = this->_internals->commandLine->command;
+    char* pathname = get_command_pathname(invokedCommand);
+    if (pathname) {
+        fork_and_execute(this, pathname);
+    } else {
+        dprintf(STDERR_FILENO, "my_zsh: Command not found: %s\n", invokedCommand);
+    }
     delete(this);
 }
 
 static char* search_in_path(char* command);
-char* get_command_pathname(Command* this)
+char* get_command_pathname(char* command)
 {
-    char* command = this->_internals->commandLine->command;
     return strchr(command, '/') ? command : search_in_path(command);
 }
 
@@ -55,9 +60,22 @@ void fork_and_execute(Command* this, char* pathname)
     } while (!WIFEXITED(status) && !WIFSIGNALED(status));
 }
 
+static bool command_in_directory(char* command, char* dirpath);
 char* search_in_path(char* command)
 {
-    return command;
+    char* path = shell.environment->getValueFromId(shell.environment, "PATH");
+    StringList* pathElements = StringListClass.split(path, ':');
+    char* pathname = NULL;
+    while (!pathname && !pathElements->isEmpty(pathElements)) {
+        char* directory = pathElements->next(pathElements);
+        if (command_in_directory(command, directory)) {
+            pathname = malloc(strlen(directory) + strlen(command) + 2);
+            strcat(strcat(strcpy(pathname, directory), "/"), command);
+        }
+        free(directory);
+    }
+    pathElements->delete(pathElements);
+    return pathname;
 }
 
 void child_process_execute(Command* this, char* pathname)
@@ -76,6 +94,19 @@ void child_process_execute(Command* this, char* pathname)
     }
     free(argv); free(envp);
     exit(EXIT_FAILURE);
+}
+
+bool command_in_directory(char* command, char* dirpath)
+{
+    DIR* directory = opendir(dirpath);
+    if (!directory) return false;
+    bool found = false;
+    struct dirent* entry;
+    while (!found && (entry = readdir(directory))) {
+        if (!strcmp(command, entry->d_name)) found = true;
+    }
+    closedir(directory);
+    return found;
 }
 
 void delete(Command* this)

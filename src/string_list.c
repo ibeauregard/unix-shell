@@ -2,14 +2,22 @@
 #include <stdlib.h>
 #include <string.h>
 
-static StringList* split(char* string, char sep, StringTransformation* transformation);
+static StringList* split(char* string, char sep);
+static StringList* split_transform(char* string, char sep, StringTransformation* transformation);
 const struct string_list_class StringListClass = {
-        .split = &split
+        .split = &split,
+        .splitTransform = &split_transform
 };
+
+static char* null_transformation(char* string);
+StringList* split(char* string, char sep)
+{
+    return split_transform(string, sep, &null_transformation);
+}
 
 static StringList* new();
 static void append(StringList* this, char* string);
-StringList* split(char* string, char sep, StringTransformation* transformation)
+StringList* split_transform(char* string, char sep, StringTransformation* transformation)
 {
     StringList* this = new();
     while (*string) {
@@ -20,6 +28,11 @@ StringList* split(char* string, char sep, StringTransformation* transformation)
         string += j;
     }
     return this;
+}
+
+char* null_transformation(char* string)
+{
+    return string;
 }
 
 typedef struct string_node StringNode;

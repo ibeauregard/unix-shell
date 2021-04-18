@@ -17,6 +17,8 @@ int main(int argc, char* argv[], char* envp[])
     shell.execute(CommandLineClass.fromString("/not_found -a"));
     shell.execute(CommandLineClass.fromString("./permission_denied"));
     shell.execute(CommandLineClass.fromString("/bin/ls -a"));
+    shell.execute(CommandLineClass.fromString("not_found -a"));
+    shell.execute(CommandLineClass.fromString("ls -a"));
     shell.delete();
     return EXIT_SUCCESS;
 }
