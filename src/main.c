@@ -16,6 +16,7 @@ int main(int argc, char* argv[], char* envp[])
     shell.execute(CommandLineClass.fromString("echo eric $PICKUP"));
     shell.execute(CommandLineClass.fromString("/roger -a"));
     shell.execute(CommandLineClass.fromString("/bin/ls -a"));
+    shell.execute(CommandLineClass.fromString("./permission_denied"));
     shell.delete();
     return EXIT_SUCCESS;
 }

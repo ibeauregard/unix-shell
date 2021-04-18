@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
+#include <errno.h>
 
 static Command* from_command_line(CommandLine* commandLine);
 const struct external_command ExternalCommand = {
@@ -28,50 +29,45 @@ Command* from_command_line(CommandLine* commandLine)
 }
 
 static char* get_command_pathname(Command* this);
-static void do_execute(Command* this, char* pathname);
+static void fork_and_execute(Command* this, char* pathname);
 static void delete(Command* this);
 void execute(Command* this)
 {
     char* pathname = get_command_pathname(this);
-    if (pathname) do_execute(this, pathname);
+    if (pathname) fork_and_execute(this, pathname);
     delete(this);
 }
 
-static char* ordinary_search(char* command);
 static char* search_in_path(char* command);
 char* get_command_pathname(Command* this)
 {
     char* command = this->_internals->commandLine->command;
-    return strchr(command, '/') ? ordinary_search(command) : search_in_path(command);
+    return strchr(command, '/') ? command : search_in_path(command);
 }
 
-void do_execute(Command* this, char* pathname)
+static void child_process_execute(Command* this, char* pathname);
+void fork_and_execute(Command* this, char* pathname)
 {
     pid_t pid = fork();
-    if (pid == 0) {
-        StringList* arguments = this->_internals->commandLine->arguments;
-        Environment* environment = shell.environment;
-        execve(pathname, arguments->toStringArray(arguments), environment->serialize(environment));
-    }
+    if (pid == 0) child_process_execute(this, pathname);
     int status;
     do {
         waitpid(pid, &status, WUNTRACED);
     } while (!WIFEXITED(status) && !WIFSIGNALED(status));
 }
 
-char* ordinary_search(char* command)
-{
-    struct stat statbuf;
-    if (stat(command, &statbuf) == -1) {
-        dprintf(STDERR_FILENO, "my_zsh: no such file or directory: %s\n", command);
-        return NULL;
-    }
-    return command;
-}
-
 char* search_in_path(char* command)
 {
     return command;
+}
+
+void child_process_execute(Command* this, char* pathname)
+{
+    StringList* arguments = this->_internals->commandLine->arguments;
+    Environment* environment = shell.environment;
+    execve(pathname, arguments->toStringArray(arguments), environment->serialize(environment));
+    dprintf(STDERR_FILENO, "my_zsh: %s: %s\n", strerror(errno), pathname);
+    exit(EXIT_FAILURE);
 }
 
 void delete(Command* this)
