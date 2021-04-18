@@ -26,11 +26,24 @@ Command* from_command_line(CommandLine* commandLine)
 }
 
 static char* get_command_pathname(Command* this);
+static void do_execute(Command* this, char* pathname);
 static void delete(Command* this);
 void execute(Command* this)
 {
     char* pathname = get_command_pathname(this);
-    if (!pathname) return;
+    if (pathname) do_execute(this, pathname);
+    delete(this);
+}
+
+static char* search_in_path(char* command);
+char* get_command_pathname(Command* this)
+{
+    char* command = this->_internals->commandLine->command;
+    return strchr(command, '/') ? NULL : search_in_path(command);
+}
+
+void do_execute(Command* this, char* pathname)
+{
     pid_t pid = fork();
     if (pid == 0) {
         StringList* arguments = this->_internals->commandLine->arguments;
@@ -41,14 +54,6 @@ void execute(Command* this)
     do {
         waitpid(pid, &status, WUNTRACED);
     } while (!WIFEXITED(status) && !WIFSIGNALED(status));
-    delete(this);
-}
-
-static char* search_in_path(char* command);
-char* get_command_pathname(Command* this)
-{
-    char* command = this->_internals->commandLine->command;
-    return strchr(command, '/') ? NULL : search_in_path(command);
 }
 
 char* search_in_path(char* command)
