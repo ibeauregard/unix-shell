@@ -102,8 +102,7 @@ char** to_string_array(StringList* this)
 void delete(StringList* this)
 {
     while (!is_empty(this)) {
-        char* string = next(this);
-        free(string);
+        free(next(this));
     }
     free(this->_internals);
     free(this); this = NULL;
