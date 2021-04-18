@@ -2,6 +2,7 @@
 #include "shell.h"
 #include "command_line.h"
 #include <stdlib.h>
+#include <string.h>
 
 int main(int argc, char* argv[], char* envp[])
 {
@@ -20,6 +21,15 @@ int main(int argc, char* argv[], char* envp[])
     shell.execute(CommandLineClass.fromString("not_found -a"));
     shell.execute(CommandLineClass.fromString("ls -a"));
     shell.execute(CommandLineClass.fromString("pwd"));
+    shell.execute(CommandLineClass.fromString("setenv"));
+    shell.execute(CommandLineClass.fromString("setenv TEST=test"));
+    shell.execute(CommandLineClass.fromString("setenv HOME=home"));
+    shell.execute(CommandLineClass.fromString("setenv TEST=test HOME=home"));
+//    shell.execute(CommandLineClass.fromString("setenv -o"));
+//    shell.execute(CommandLineClass.fromString("setenv -o TEST=test2"));
+//    shell.execute(CommandLineClass.fromString("setenv -o ABC=abc"));
+//    shell.execute(CommandLineClass.fromString("setenv -o TEST=test2 ABC=abc"));
+//    shell.execute(CommandLineClass.fromString("echo $TEST $HOME $ABC"));
     shell.delete();
     return EXIT_SUCCESS;
 }

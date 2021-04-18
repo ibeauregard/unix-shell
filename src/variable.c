@@ -11,15 +11,19 @@ const struct variable_class VariableClass = {
 static struct internals* initialize_internals(char* variable);
 static char* get_id(Variable* this);
 static char* get_value(Variable* this);
+static void set_value(Variable* this, char* value);
 static void print(Variable* this);
 static char* to_string(Variable* this);
 static void delete(Variable* this);
 Variable* from_string(char* string)
 {
+    struct internals* internals = initialize_internals(string);
+    if (!internals) return NULL;
     Variable* this = malloc(sizeof (Variable));
-    this->_internals = initialize_internals(string);
+    this->_internals = internals;
     this->getId = &get_id;
     this->getValue = &get_value;
+    this->setValue = &set_value;
     this->print = &print;
     this->toString = &to_string;
     this->delete = &delete;
@@ -33,8 +37,9 @@ struct internals {
 
 struct internals* initialize_internals(char* variable)
 {
-    struct internals* internals = malloc(sizeof (struct internals));
     long equal_sign_index = strchr(variable, '=') - variable;
+    if (equal_sign_index < 0) return NULL;
+    struct internals* internals = malloc(sizeof (struct internals));
     internals->id = strndup(variable, equal_sign_index);
     internals->value = strdup(&variable[equal_sign_index + 1]);
     return internals;
@@ -48,6 +53,12 @@ char* get_id(Variable* this)
 char* get_value(Variable* this)
 {
     return this->_internals->value;
+}
+
+void set_value(Variable* this, char* value)
+{
+    free(this->_internals->value);
+    this->_internals->value = value;
 }
 
 void print(Variable* this)

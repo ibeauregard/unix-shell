@@ -15,6 +15,7 @@ struct internals {
 
 static void insert(Environment* this, Variable* variable);
 static char* get_value_from_id(Environment* this, char* id);
+static void set_variable(Environment* this, Variable* variable, bool overwrite);
 static void print(Environment* this);
 static char** serialize(Environment* this);
 static void delete(Environment* this);
@@ -29,6 +30,7 @@ Environment* from_string_array(char* envp[])
     }
     this->_internals->length = i;
     this->getValueFromId = &get_value_from_id;
+    this->setVariable = &set_variable;
     this->print = &print;
     this->serialize = &serialize;
     this->delete = &delete;
@@ -55,6 +57,26 @@ char* get_value_from_id(Environment* this, char* id)
         node = node->next;
     }
     return strdup(node ? node->variable->getValue(node->variable) : "");
+}
+
+void set_variable(Environment* this, Variable* variable, bool overwrite)
+{
+    if (!variable) return;
+    bool seen = false;
+    VariableNode* node = this->_internals->head;
+    while (!seen && node) {
+        Variable* existingVariable = node->variable;
+        if (!strcmp(existingVariable->getId(existingVariable), variable->getId(variable))) {
+            if (overwrite) existingVariable->setValue(existingVariable, variable->getValue(variable));
+            seen = true;
+        }
+        node = node->next;
+    }
+    if (!seen) {
+        insert(this, variable);
+    } else {
+        variable->delete(variable);
+    }
 }
 
 void print(Environment* this)
