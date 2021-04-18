@@ -3,7 +3,7 @@
 #include "environment.h"
 #include "shell.h"
 #include <stdlib.h>
-#include <stdio.h>
+#include <string.h>
 #include <sys/wait.h>
 
 static Command* from_command_line(CommandLine* commandLine);
@@ -30,6 +30,7 @@ static void delete(Command* this);
 void execute(Command* this)
 {
     char* pathname = get_command_pathname(this);
+    if (!pathname) return;
     pid_t pid = fork();
     if (pid == 0) {
         StringList* arguments = this->_internals->commandLine->arguments;
@@ -43,9 +44,16 @@ void execute(Command* this)
     delete(this);
 }
 
+static char* search_in_path(char* command);
 char* get_command_pathname(Command* this)
 {
-    return this->_internals->commandLine->command;
+    char* command = this->_internals->commandLine->command;
+    return strchr(command, '/') ? NULL : search_in_path(command);
+}
+
+char* search_in_path(char* command)
+{
+    return command;
 }
 
 void delete(Command* this)
