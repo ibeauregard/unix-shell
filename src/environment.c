@@ -16,6 +16,7 @@ struct internals {
 static void insert(Environment* this, Variable* variable);
 static char* get_value_from_id(Environment* this, char* id);
 static void set_variable(Environment* this, Variable* variable, bool overwrite);
+static void unset_variable(Environment* this, char* id);
 static void print(Environment* this);
 static char** serialize(Environment* this);
 static void delete(Environment* this);
@@ -31,6 +32,7 @@ Environment* from_string_array(char* envp[])
     this->_internals->length = i;
     this->getValueFromId = &get_value_from_id;
     this->setVariable = &set_variable;
+    this->unsetVariable = &unset_variable;
     this->print = &print;
     this->serialize = &serialize;
     this->delete = &delete;
@@ -76,6 +78,27 @@ void set_variable(Environment* this, Variable* variable, bool overwrite)
         insert(this, variable);
     } else {
         variable->delete(variable);
+    }
+}
+
+void unset_variable(Environment* this, char* id)
+{
+    VariableNode* node = this->_internals->head;
+    if (!node) return;
+    if (!strcmp(id, node->variable->getId(node->variable))) {
+        this->_internals->head = node->next;
+        node->variable->delete(node->variable);
+        free(node);
+        return;
+    }
+    while (node->next && strcmp(id, node->next->variable->getId(node->next->variable)) != 0) {
+        node = node->next;
+    }
+    if (node->next) {
+        VariableNode* deleted = node->next;
+        node->next = node->next->next;
+        deleted->variable->delete(deleted->variable);
+        free(deleted);
     }
 }
 

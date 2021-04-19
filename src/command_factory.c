@@ -2,6 +2,7 @@
 #include "null_command.h"
 #include "echo_command.h"
 #include "setenv_command.h"
+#include "unsetenv_command.h"
 #include "external_command.h"
 #include <string.h>
 
@@ -18,6 +19,8 @@ Command* from_command_line(CommandLine* line)
         return EchoCommand.withArgs(line->arguments);
     } if (!strcmp(line->command, "setenv")) {
         return SetenvCommand.withArgs(line->arguments);
+    } if (!strcmp(line->command, "unsetenv")) {
+        return UnsetenvCommand.withArgs(line->arguments);
     } else {
         return ExternalCommand.fromCommandLine(line);
     }
