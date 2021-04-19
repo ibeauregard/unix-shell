@@ -44,6 +44,24 @@ int main(int argc, char* argv[], char* envp[])
     shell.execute(CommandLineClass.fromString(strcat(strcpy(command, "setenv HOME="), home_value)));
     free(home_value); free(command);
     shell.execute(CommandLineClass.fromString("echo $HOME"));
+    shell.execute(CommandLineClass.fromString("cd"));
+    shell.execute(CommandLineClass.fromString("cd -L"));
+    shell.execute(CommandLineClass.fromString("cd -P"));
+    shell.execute(CommandLineClass.fromString("cd -LP"));
+    shell.execute(CommandLineClass.fromString("cd -PL"));
+    shell.execute(CommandLineClass.fromString("cd -L -P"));
+    shell.execute(CommandLineClass.fromString("cd -P -L"));
+    shell.execute(CommandLineClass.fromString("cd -LPL"));
+    shell.execute(CommandLineClass.fromString("cd -LPL -P -L ~"));
+    shell.execute(CommandLineClass.fromString("cd ~"));
+    shell.execute(CommandLineClass.fromString("cd ~ -"));
+    shell.execute(CommandLineClass.fromString("cd ."));
+    shell.execute(CommandLineClass.fromString("cd ./"));
+    shell.execute(CommandLineClass.fromString("cd .."));
+    shell.execute(CommandLineClass.fromString("cd -"));
+    shell.execute(CommandLineClass.fromString("cd ../"));
+    shell.execute(CommandLineClass.fromString("cd -"));
+    shell.execute(CommandLineClass.fromString("cd $HOME/../"));
     shell.delete();
     return EXIT_SUCCESS;
 }
