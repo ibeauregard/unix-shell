@@ -81,6 +81,7 @@ struct state {
     char* curpath;
     char* home_value;
     char* cdpath_value;
+    char* pwd_value;
     char* oldpwd_value;
     bool print_new_directory_name;
     bool interrupted;
@@ -90,6 +91,8 @@ static struct state initialize_state();
 static void set_operand(Command* this, struct state* state);
 static bool starts_with_slash_or_dot_or_dot_dot(char* string);
 static void browse_cdpath(char* operand, struct state* state);
+static void adjust_curpath(struct state* state);
+static void change_directory(Command* this, struct state* state);
 static void free_state(struct state* state);
 void do_execute(Command* this)
 {
@@ -100,8 +103,8 @@ void do_execute(Command* this)
         browse_cdpath(this->_internals->operand, &state);
     }
     if (!state.interrupted && !state.curpath) state.curpath = strdup(this->_internals->operand);
-//    if (!state.interrupted && !this->_internals->pOption)
-
+    if (!state.interrupted && !this->_internals->pOption) adjust_curpath(&state);
+    if (!state.interrupted) change_directory(this, &state);
     free_state(&state);
 }
 
@@ -111,6 +114,7 @@ struct state initialize_state()
         .curpath = NULL,
         .home_value = shell.environment->getValueFromId(shell.environment, "HOME"),
         .cdpath_value = shell.environment->getValueFromId(shell.environment, "CDPATH"),
+        .pwd_value = shell.environment->getValueFromId(shell.environment, "PWD"),
         .oldpwd_value = shell.environment->getValueFromId(shell.environment, "OLDPWD"),
         .print_new_directory_name = false,
         .interrupted = false
@@ -145,33 +149,33 @@ bool starts_with_slash_or_dot_or_dot_dot(char* string)
            || (strlen(string) >= 3 && string[0] == '.' && string[1] == '.' && string[2] == '/');
 }
 
-static char* get_concatenation(char* pathname, char* operand);
+static char* join_with_slash(char* string1, char* string2);
 static bool names_a_directory(char* string);
 void browse_cdpath(char* operand, struct state* state)
 {
     StringList* cdpathElements = StringListClass.split(state->cdpath_value, ':');
     while (!state->curpath && !cdpathElements->isEmpty(cdpathElements)) {
         char* pathname = cdpathElements->next(cdpathElements);
-        char* concatenation = get_concatenation(pathname, operand);
+        char* concatenation = join_with_slash(pathname, operand);
         if (names_a_directory(concatenation)) state->curpath = concatenation;
         else free(concatenation);
         free(pathname);
     }
     if (!state->curpath) {
-        char* concatenation = get_concatenation(".", operand);
+        char* concatenation = join_with_slash(".", operand);
         if (names_a_directory(concatenation)) state->curpath = concatenation;
         else free(concatenation);
     }
     cdpathElements->delete(cdpathElements);
 }
 
-char* get_concatenation(char* pathname, char* operand)
+char* join_with_slash(char* string1, char* string2)
 {
-    size_t pathname_length = strlen(pathname);
-    char* concatenation = malloc(pathname_length + (pathname[pathname_length - 1] != '/') + strlen(operand) + 1);
-    strcpy(concatenation, pathname);
-    if (pathname[pathname_length - 1] != '/') strcat(concatenation, "/");
-    strcat(concatenation, operand);
+    size_t string1Length = strlen(string1);
+    char* concatenation = malloc(string1Length + (string1[string1Length - 1] != '/') + strlen(string2) + 1);
+    strcpy(concatenation, string1);
+    if (string1[string1Length - 1] != '/') strcat(concatenation, "/");
+    strcat(concatenation, string2);
     return concatenation;
 }
 
@@ -182,11 +186,51 @@ bool names_a_directory(char* string)
     return S_ISDIR(statbuf.st_mode);
 }
 
+static void prepend_to_curpath(struct state* state);
+static void make_curpath_canonical(struct state* state);
+static void make_curpath_relative(struct state* state);
+void adjust_curpath(struct state* state)
+{
+    if (state->curpath[0] != '/') prepend_to_curpath(state);
+    make_curpath_canonical(state);
+    if (!state->interrupted) make_curpath_relative(state);
+}
+
+void prepend_to_curpath(struct state* state)
+{
+    char* old_curpath = state->curpath;
+    state->curpath = join_with_slash(state->pwd_value, old_curpath);
+    free(old_curpath);
+}
+
+void make_curpath_canonical(struct state* state)
+{
+    (void)state;
+}
+
+void make_curpath_relative(struct state* state)
+{
+    char* pwd = join_with_slash(state->pwd_value, "");
+    size_t pwd_length = strlen(pwd);
+    if (!strncmp(pwd, state->curpath, pwd_length)) {
+        for (size_t i = pwd_length; i <= strlen(state->curpath); i++) { // <= to copy '\0'
+            state->curpath[i - pwd_length] = state->curpath[i];
+        }
+    }
+    free(pwd);
+}
+
+void change_directory(Command* this, struct state* state)
+{
+    (void)this, (void)state;
+}
+
 void free_state(struct state* state)
 {
     if (state->curpath) free(state->curpath);
     free(state->home_value);
     free(state->cdpath_value);
+    free(state->pwd_value);
     free(state->oldpwd_value);
 }
 
