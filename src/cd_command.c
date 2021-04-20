@@ -100,7 +100,7 @@ void do_execute(Command* this)
         browse_cdpath(this->_internals->operand, &state);
     }
     if (!state.interrupted && !state.curpath) state.curpath = strdup(this->_internals->operand);
-    if (!state.interrupted && !this->_internals->pOption)
+//    if (!state.interrupted && !this->_internals->pOption)
 
     free_state(&state);
 }
