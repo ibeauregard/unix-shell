@@ -25,6 +25,7 @@ int main(int argc, char* argv[], char* envp[])
     shell.execute(CommandLineClass.fromString("echo HOME=e/$UNSET/e"));
     shell.execute(CommandLineClass.fromString("echo HOME=e/$/e"));
     shell.execute(CommandLineClass.fromString("echo HOME=e/$"));
+    shell.execute(CommandLineClass.fromString("echo HOME=e/$HOME/home/$HOME"));
     shell.execute(CommandLineClass.fromString("/not_found -a"));
     shell.execute(CommandLineClass.fromString("./permission_denied"));
     shell.execute(CommandLineClass.fromString("/bin/ls -a"));
