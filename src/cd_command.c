@@ -79,6 +79,7 @@ void execute(Command* this)
 
 struct state {
     char* curpath;
+    char* absolute_curpath;
     char* home_value;
     char* cdpath_value;
     char* pwd_value;
@@ -112,6 +113,7 @@ struct state initialize_state()
 {
     return (struct state){
         .curpath = NULL,
+        .absolute_curpath = NULL,
         .home_value = shell.environment->getValueFromId(shell.environment, "HOME"),
         .cdpath_value = shell.environment->getValueFromId(shell.environment, "CDPATH"),
         .pwd_value = shell.environment->getValueFromId(shell.environment, "PWD"),
@@ -319,6 +321,7 @@ size_t get_forward_offset(struct state* state, size_t component_index)
 
 void make_curpath_relative(struct state* state)
 {
+    state->absolute_curpath = strdup(state->curpath);
     char* pwd = join_with_slash(state->pwd_value, "");
     size_t pwd_length = strlen(pwd);
     if (!strncmp(pwd, state->curpath, pwd_length)) {
@@ -338,6 +341,7 @@ void change_directory(Command* this, struct state* state)
 void free_state(struct state* state)
 {
     if (state->curpath) free(state->curpath);
+    if (state->absolute_curpath) free(state->absolute_curpath);
     free(state->home_value);
     free(state->cdpath_value);
     free(state->pwd_value);
