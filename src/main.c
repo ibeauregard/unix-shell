@@ -55,10 +55,6 @@ int main(int argc, char* argv[], char* envp[])
     shell.execute(CommandLineClass.fromString(strcat(strcpy(command, "setenv HOME="), home_value)));
     free(home_value); free(command);
     shell.execute(CommandLineClass.fromString("echo $HOME"));
-    shell.execute(CommandLineClass.fromString("cd .."));
-    shell.execute(CommandLineClass.fromString("cd ../"));
-    shell.execute(CommandLineClass.fromString("cd /.."));
-    shell.execute(CommandLineClass.fromString("cd /../"));
     shell.execute(CommandLineClass.fromString("cd"));
     shell.execute(CommandLineClass.fromString("cd -L"));
     shell.execute(CommandLineClass.fromString("cd -P"));
@@ -76,8 +72,11 @@ int main(int argc, char* argv[], char* envp[])
     shell.execute(CommandLineClass.fromString("cd -"));
     shell.execute(CommandLineClass.fromString("cd ../"));
     shell.execute(CommandLineClass.fromString("cd -"));
+    shell.execute(CommandLineClass.fromString("cd /.."));
+    shell.execute(CommandLineClass.fromString("cd /../"));
     shell.execute(CommandLineClass.fromString("cd $HOME/.."));
     shell.execute(CommandLineClass.fromString("cd $HOME/../"));
+    shell.execute(CommandLineClass.fromString("cd $HOME"));
     shell.delete();
     return EXIT_SUCCESS;
 }
