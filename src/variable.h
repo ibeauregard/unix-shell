@@ -14,6 +14,7 @@ struct variable {
 
 extern const struct variable_class {
     Variable* (*fromString)(char* string);
+    Variable* (*fromIdAndValue)(char* id, char* value);
 } VariableClass;
 
 #endif

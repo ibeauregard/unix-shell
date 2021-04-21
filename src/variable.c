@@ -4,22 +4,42 @@
 #include <string.h>
 
 static Variable* from_string(char* string);
+static Variable* from_id_and_value(char* id, char* value);
 const struct variable_class VariableClass = {
-        .fromString = &from_string
+        .fromString = &from_string,
+        .fromIdAndValue = &from_id_and_value
 };
 
-static struct internals* initialize_internals(char* variable);
+static struct internals* get_internals_from_string(char* variable);
+static Variable* new(struct internals* internals);
+Variable* from_string(char* string)
+{
+    struct internals* internals = get_internals_from_string(string);
+    if (!internals) return NULL;
+    return new(internals);
+}
+
+struct internals* get_internals_from_id_and_value(char* id, char* value);
+Variable* from_id_and_value(char* id, char* value)
+{
+    return new(get_internals_from_id_and_value(id, value));
+}
+
+struct internals {
+    char* id;
+    char* value;
+};
+
 static char* get_id(Variable* this);
 static char* get_value(Variable* this);
 static void set_value(Variable* this, char* value);
 static void print(Variable* this);
 static char* to_string(Variable* this);
 static void delete(Variable* this);
-Variable* from_string(char* string)
+Variable* new(struct internals* internals)
 {
-    struct internals* internals = initialize_internals(string);
-    if (!internals) return NULL;
     Variable* this = malloc(sizeof (Variable));
+    this->_internals = internals;
     this->_internals = internals;
     this->getId = &get_id;
     this->getValue = &get_value;
@@ -30,18 +50,21 @@ Variable* from_string(char* string)
     return this;
 }
 
-struct internals {
-    char* id;
-    char* value;
-};
-
-struct internals* initialize_internals(char* variable)
+struct internals* get_internals_from_string(char* variable)
 {
     long equal_sign_index = strchr(variable, '=') - variable;
     if (equal_sign_index < 0) return NULL;
     struct internals* internals = malloc(sizeof (struct internals));
     internals->id = strndup(variable, equal_sign_index);
     internals->value = strdup(&variable[equal_sign_index + 1]);
+    return internals;
+}
+
+struct internals* get_internals_from_id_and_value(char* id, char* value)
+{
+    struct internals* internals = malloc(sizeof (struct internals));
+    internals->id = strdup(id);
+    internals->value = strdup(value);
     return internals;
 }
 

@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <errno.h>
+#include <limits.h>
 
 static Command* with_args(StringList* arguments);
 const struct cd_command CdCommand = {
@@ -330,12 +332,39 @@ void make_curpath_relative(struct state* state)
             state->curpath[i - pwd_length] = state->curpath[i];
         }
     }
+    if (!state->curpath[0]) state->interrupted = true;
     free(pwd);
 }
 
+static void set_pwd(Command* this, struct state* state);
 void change_directory(Command* this, struct state* state)
 {
-    (void)this, (void)state;
+    if (chdir(state->curpath) == -1) {
+        dprintf(STDERR_FILENO, "cd: %s: %s\n", strerror(errno), state->curpath);
+        state->interrupted = true;
+    }
+    if (!state->interrupted) set_pwd(this, state);
+}
+
+static void set_pwd_value(char* pwd_value);
+void set_pwd(Command* this, struct state* state)
+{
+    char pwd_value[PATH_MAX];
+    if (this->_internals->pOption) {
+        if (!getwd(pwd_value)) state->interrupted = true;
+    } else {
+        strcpy(pwd_value, state->absolute_curpath);
+    }
+    if (!state->interrupted) set_pwd_value(pwd_value);
+}
+
+void set_pwd_value(char* pwd_value)
+{
+    Environment* environment = shell.environment;
+    char* oldpwd_value = environment->getValueFromId(environment, "PWD");
+    environment->setVariable(environment, VariableClass.fromIdAndValue("OLDPWD", oldpwd_value), true);
+    free(oldpwd_value);
+    environment->setVariable(environment, VariableClass.fromIdAndValue("PWD", pwd_value), true);
 }
 
 void free_state(struct state* state)
