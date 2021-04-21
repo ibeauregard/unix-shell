@@ -121,32 +121,50 @@ struct state initialize_state()
     };
 }
 
+static void handle_no_operand(Command* this, struct state* state);
+static void handle_hyphen_operand(Command* this, struct state* state);
+static void handle_tilde_operand(Command* this, struct state* state);
 void set_operand(Command* this, struct state* state)
 {
     if (!this->_internals->operand) {
-        if (!strlen(state->home_value)) {
-            free_state(state);
-            state->interrupted = true;
-        } else {
-            this->_internals->operand = strdup(state->home_value);
-        }
+        handle_no_operand(this, state);
     } else if (!strcmp(this->_internals->operand, "-")) {
-        if (strlen(state->oldpwd_value) > 0) {
-            free(this->_internals->operand);
-            this->_internals->operand = strdup(state->oldpwd_value);
-            state->print_new_directory_name = true;
-        } else {
-            dprintf(STDERR_FILENO, "%s\n", "cd: OLDPWD not set");
-            state->interrupted = true;
-        }
+        handle_hyphen_operand(this, state);
     } else if (!strcmp(this->_internals->operand, "~")) {
-        if (strlen(state->home_value) > 0) {
-            free(this->_internals->operand);
-            this->_internals->operand = strdup(state->home_value);
-        } else {
-            dprintf(STDERR_FILENO, "%s\n", "cd: HOME not set");
-            state->interrupted = true;
-        }
+        handle_tilde_operand(this, state);
+    }
+}
+
+void handle_no_operand(Command* this, struct state* state)
+{
+    if (!strlen(state->home_value)) {
+        free_state(state);
+        state->interrupted = true;
+    } else {
+        this->_internals->operand = strdup(state->home_value);
+    }
+}
+
+void handle_hyphen_operand(Command* this, struct state* state)
+{
+    if (strlen(state->oldpwd_value) > 0) {
+        free(this->_internals->operand);
+        this->_internals->operand = strdup(state->oldpwd_value);
+        state->print_new_directory_name = true;
+    } else {
+        dprintf(STDERR_FILENO, "%s\n", "cd: OLDPWD not set");
+        state->interrupted = true;
+    }
+}
+
+void handle_tilde_operand(Command* this, struct state* state)
+{
+    if (strlen(state->home_value) > 0) {
+        free(this->_internals->operand);
+        this->_internals->operand = strdup(state->home_value);
+    } else {
+        dprintf(STDERR_FILENO, "%s\n", "cd: HOME not set");
+        state->interrupted = true;
     }
 }
 
