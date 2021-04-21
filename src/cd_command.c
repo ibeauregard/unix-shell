@@ -351,7 +351,7 @@ void set_pwd(Command* this, struct state* state)
 {
     char pwd_value[PATH_MAX];
     if (this->_internals->pOption) {
-        if (!getwd(pwd_value)) state->interrupted = true;
+        if (!getcwd(pwd_value, PATH_MAX)) state->interrupted = true;
     } else {
         strcpy(pwd_value, state->absolute_curpath);
     }
