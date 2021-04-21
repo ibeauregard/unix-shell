@@ -231,9 +231,90 @@ void prepend_to_curpath(struct state* state)
     free(old_curpath);
 }
 
+static void process_dot_component(struct state* state, size_t component_index);
+static size_t process_dot_dot_component(struct state* state, size_t component_index);
 void make_curpath_canonical(struct state* state)
 {
-    (void)state;
+    size_t i = 0;
+    while (!state->interrupted && state->curpath[i]) {
+        for (; state->curpath[i]
+                && !(state->curpath[i] == '.'
+                        && (i == 0 || state->curpath[i - 1] == '/')); i++);
+        if (state->curpath[i]) {
+            if (state->curpath[i + 1] == 0
+                || state->curpath[i + 1] == '/') process_dot_component(state, i);
+            else if (state->curpath[i + 1] == '.'
+                     && (state->curpath[i + 2] == 0
+                         || state->curpath[i + 2] == '/')) i = process_dot_dot_component(state, i);
+        }
+    }
+    if (i == 0) state->interrupted = true;
+}
+
+void process_dot_component(struct state* state, size_t component_index)
+{
+    size_t offset;
+    for (offset = 1; state->curpath[component_index + offset] == '/'; offset++);
+    size_t path_length = strlen(state->curpath);
+    for (size_t i = component_index + offset; i <= path_length; i++) { // <= to copy '\0'
+        state->curpath[i - offset] = state->curpath[i];
+    }
+}
+
+static size_t get_previous_component_length(struct state* state, size_t component_index);
+static size_t get_backward_offset(
+                struct state* state,
+                size_t component_index,
+                size_t previous_component_length);
+static size_t get_forward_offset(struct state* state, size_t component_index);
+size_t process_dot_dot_component(struct state* state, size_t component_index)
+{
+    size_t previous_component_length = get_previous_component_length(state, component_index);
+    if (previous_component_length == 0) return component_index + 2; // if there is no previous component
+    state->curpath[previous_component_length] = 0;
+    if (!names_a_directory(state->curpath)) {
+        dprintf(STDERR_FILENO, "cd: Not a directory: %s\n", state->curpath);
+        state->interrupted = true;
+        return component_index + 2;
+    }
+    state->curpath[previous_component_length] = '/';
+    size_t backward_offset = get_backward_offset(state, component_index, previous_component_length);
+    size_t forward_offset = get_forward_offset(state, component_index);
+    size_t path_length = strlen(state->curpath);
+    for (size_t i = component_index; i + forward_offset <= path_length; i++) {
+        state->curpath[i - backward_offset] = state->curpath[i + forward_offset];
+    }
+    return component_index - backward_offset;
+}
+
+size_t get_previous_component_length(struct state* state, size_t component_index)
+{
+    size_t previous_component_length;
+    for (previous_component_length = component_index;
+         previous_component_length > 0 && state->curpath[previous_component_length - 1] == '/';
+         previous_component_length--);
+    return previous_component_length;
+}
+
+size_t get_backward_offset(
+        struct state* state,
+        size_t component_index,
+        size_t previous_component_length)
+{
+    size_t backward_offset;
+    for (backward_offset = component_index - previous_component_length + 1;
+         backward_offset < component_index  && state->curpath[component_index - backward_offset - 1] != '/';
+         backward_offset++);
+    return backward_offset;
+}
+
+size_t get_forward_offset(struct state* state, size_t component_index)
+{
+    size_t forward_offset;
+    for (forward_offset = 2;
+         state->curpath[component_index + forward_offset] == '/';
+         forward_offset++);
+    return forward_offset;
 }
 
 void make_curpath_relative(struct state* state)
@@ -241,7 +322,8 @@ void make_curpath_relative(struct state* state)
     char* pwd = join_with_slash(state->pwd_value, "");
     size_t pwd_length = strlen(pwd);
     if (!strncmp(pwd, state->curpath, pwd_length)) {
-        for (size_t i = pwd_length; i <= strlen(state->curpath); i++) { // <= to copy '\0'
+        size_t curpath_length = strlen(state->curpath);
+        for (size_t i = pwd_length; i <= curpath_length; i++) { // <= to copy '\0'
             state->curpath[i - pwd_length] = state->curpath[i];
         }
     }
