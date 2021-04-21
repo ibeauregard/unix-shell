@@ -37,14 +37,14 @@ void initialize_internals(Command* this)
     this->_internals->parseError = false;
 }
 
-static void handle_flag_argument(Command* this, char* argument);
+static void process_flag_argument(Command* this, char* argument);
 void parse_arguments(Command* this, StringList* arguments)
 {
     free(arguments->next(arguments)); // discard 'cd' argument (program name)
     while (!this->_internals->parseError
             && !arguments->isEmpty(arguments)
             && arguments->peek(arguments)[0] == '-') {
-        handle_flag_argument(this, arguments->next(arguments));
+        process_flag_argument(this, arguments->next(arguments));
     }
     if (!this->_internals->parseError && !arguments->isEmpty(arguments)) {
         this->_internals->operand = arguments->next(arguments);
@@ -56,7 +56,7 @@ void parse_arguments(Command* this, StringList* arguments)
     }
 }
 
-void handle_flag_argument(Command* this, char* argument)
+void process_flag_argument(Command* this, char* argument)
 {
     for (size_t i = 1; !this->_internals->parseError && argument[i]; i++) {
         if (argument[i] == 'L') this->_internals->pOption = false;
@@ -121,21 +121,21 @@ struct state initialize_state()
     };
 }
 
-static void handle_no_operand(Command* this, struct state* state);
-static void handle_hyphen_operand(Command* this, struct state* state);
-static void handle_tilde_operand(Command* this, struct state* state);
+static void process_no_operand(Command* this, struct state* state);
+static void process_hyphen_operand(Command* this, struct state* state);
+static void process_tilde_operand(Command* this, struct state* state);
 void set_operand(Command* this, struct state* state)
 {
     if (!this->_internals->operand) {
-        handle_no_operand(this, state);
+        process_no_operand(this, state);
     } else if (!strcmp(this->_internals->operand, "-")) {
-        handle_hyphen_operand(this, state);
+        process_hyphen_operand(this, state);
     } else if (!strcmp(this->_internals->operand, "~")) {
-        handle_tilde_operand(this, state);
+        process_tilde_operand(this, state);
     }
 }
 
-void handle_no_operand(Command* this, struct state* state)
+void process_no_operand(Command* this, struct state* state)
 {
     if (!strlen(state->home_value)) {
         free_state(state);
@@ -145,7 +145,7 @@ void handle_no_operand(Command* this, struct state* state)
     }
 }
 
-void handle_hyphen_operand(Command* this, struct state* state)
+void process_hyphen_operand(Command* this, struct state* state)
 {
     if (strlen(state->oldpwd_value) > 0) {
         free(this->_internals->operand);
@@ -157,7 +157,7 @@ void handle_hyphen_operand(Command* this, struct state* state)
     }
 }
 
-void handle_tilde_operand(Command* this, struct state* state)
+void process_tilde_operand(Command* this, struct state* state)
 {
     if (strlen(state->home_value) > 0) {
         free(this->_internals->operand);
