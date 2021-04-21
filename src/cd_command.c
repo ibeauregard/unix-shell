@@ -26,7 +26,7 @@ Command* with_args(StringList* arguments)
 struct internals {
     bool pOption;
     char* operand;
-    bool error;
+    bool parseError;
 };
 
 void initialize_internals(Command* this)
@@ -34,23 +34,23 @@ void initialize_internals(Command* this)
     this->_internals = malloc(sizeof (struct internals));
     this->_internals->pOption = false;
     this->_internals->operand = NULL;
-    this->_internals->error = false;
+    this->_internals->parseError = false;
 }
 
 static void handle_flag_argument(Command* this, char* argument);
 void parse_arguments(Command* this, StringList* arguments)
 {
     free(arguments->next(arguments)); // discard 'cd' argument (program name)
-    while (!this->_internals->error
+    while (!this->_internals->parseError
             && !arguments->isEmpty(arguments)
             && arguments->peek(arguments)[0] == '-') {
         handle_flag_argument(this, arguments->next(arguments));
     }
-    if (!this->_internals->error && !arguments->isEmpty(arguments)) {
+    if (!this->_internals->parseError && !arguments->isEmpty(arguments)) {
         this->_internals->operand = arguments->next(arguments);
     }
-    if (!this->_internals->error && !arguments->isEmpty(arguments)) {
-        this->_internals->error = true;
+    if (!this->_internals->parseError && !arguments->isEmpty(arguments)) {
+        this->_internals->parseError = true;
         dprintf(STDERR_FILENO, "%s\n", "cd: Too many arguments");
         while (!arguments->isEmpty(arguments)) free(arguments->next(arguments));
     }
@@ -58,12 +58,12 @@ void parse_arguments(Command* this, StringList* arguments)
 
 void handle_flag_argument(Command* this, char* argument)
 {
-    for (size_t i = 1; !this->_internals->error && argument[i]; i++) {
+    for (size_t i = 1; !this->_internals->parseError && argument[i]; i++) {
         if (argument[i] == 'L') this->_internals->pOption = false;
         else if (argument[i] == 'P') this->_internals->pOption = true;
         else {
             dprintf(STDERR_FILENO, "cd: Illegal option -%c\n", argument[i]);
-            this->_internals->error = true;
+            this->_internals->parseError = true;
         }
     }
     free(argument);
@@ -73,7 +73,7 @@ static void do_execute(Command* this);
 static void delete(Command* this);
 void execute(Command* this)
 {
-    if (!this->_internals->error) do_execute(this);
+    if (!this->_internals->parseError) do_execute(this);
     delete(this);
 }
 
@@ -130,13 +130,23 @@ void set_operand(Command* this, struct state* state)
         } else {
             this->_internals->operand = strdup(state->home_value);
         }
-    }  else if (!strcmp(this->_internals->operand, "-") && strlen(state->oldpwd_value) > 0) {
-        free(this->_internals->operand);
-        this->_internals->operand = strdup(state->oldpwd_value);
-        state->print_new_directory_name = true;
-    } else if (!strcmp(this->_internals->operand, "~") && strlen(state->home_value) > 0) {
-        free(this->_internals->operand);
-        this->_internals->operand = strdup(state->home_value);
+    } else if (!strcmp(this->_internals->operand, "-")) {
+        if (strlen(state->oldpwd_value) > 0) {
+            free(this->_internals->operand);
+            this->_internals->operand = strdup(state->oldpwd_value);
+            state->print_new_directory_name = true;
+        } else {
+            dprintf(STDERR_FILENO, "%s\n", "cd: OLDPWD not set");
+            state->interrupted = true;
+        }
+    } else if (!strcmp(this->_internals->operand, "~")) {
+        if (strlen(state->home_value) > 0) {
+            free(this->_internals->operand);
+            this->_internals->operand = strdup(state->home_value);
+        } else {
+            dprintf(STDERR_FILENO, "%s\n", "cd: HOME not set");
+            state->interrupted = true;
+        }
     }
 }
 
