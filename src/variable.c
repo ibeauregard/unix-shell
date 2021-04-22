@@ -14,9 +14,7 @@ static struct internals* get_internals_from_string(char* variable);
 static Variable* new(struct internals* internals);
 Variable* from_string(char* string)
 {
-    struct internals* internals = get_internals_from_string(string);
-    if (!internals) return NULL;
-    return new(internals);
+    return new(get_internals_from_string(string));
 }
 
 struct internals* get_internals_from_id_and_value(char* id, char* value);
@@ -57,8 +55,8 @@ static char* to_string(Variable* this);
 static void delete(Variable* this);
 Variable* new(struct internals* internals)
 {
+    if (!internals) return NULL;
     Variable* this = malloc(sizeof (Variable));
-    this->_internals = internals;
     this->_internals = internals;
     this->getId = &get_id;
     this->getValue = &get_value;
