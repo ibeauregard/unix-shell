@@ -30,6 +30,25 @@ struct internals {
     char* value;
 };
 
+struct internals* get_internals_from_string(char* variable)
+{
+    long equal_sign_index = strchr(variable, '=') - variable;
+    if (equal_sign_index < 0) return NULL;
+    struct internals* internals = malloc(sizeof (struct internals));
+    internals->id = strndup(variable, equal_sign_index);
+    internals->value = strdup(&variable[equal_sign_index + 1]);
+    return internals;
+}
+
+struct internals* get_internals_from_id_and_value(char* id, char* value)
+{
+    if (strchr(id, '=')) return NULL;
+    struct internals* internals = malloc(sizeof (struct internals));
+    internals->id = strdup(id);
+    internals->value = strdup(value);
+    return internals;
+}
+
 static char* get_id(Variable* this);
 static char* get_value(Variable* this);
 static void set_value(Variable* this, char* value);
@@ -48,25 +67,6 @@ Variable* new(struct internals* internals)
     this->toString = &to_string;
     this->delete = &delete;
     return this;
-}
-
-struct internals* get_internals_from_string(char* variable)
-{
-    long equal_sign_index = strchr(variable, '=') - variable;
-    if (equal_sign_index < 0) return NULL;
-    struct internals* internals = malloc(sizeof (struct internals));
-    internals->id = strndup(variable, equal_sign_index);
-    internals->value = strdup(&variable[equal_sign_index + 1]);
-    return internals;
-}
-
-struct internals* get_internals_from_id_and_value(char* id, char* value)
-{
-    if (strchr(id, '=')) return NULL;
-    struct internals* internals = malloc(sizeof (struct internals));
-    internals->id = strdup(id);
-    internals->value = strdup(value);
-    return internals;
 }
 
 char* get_id(Variable* this)
