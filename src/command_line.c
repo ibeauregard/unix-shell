@@ -5,16 +5,22 @@
 #include <string.h>
 
 static CommandLine* from_string(char* string);
+static CommandLine* from_string_list(StringList* tokenList);
 const struct command_line_class CommandLineClass = {
-        .fromString = &from_string
+        .fromString = &from_string,
+        .fromStringList = &from_string_list
 };
 
 static char* replace_env_variables(char* string);
 static void delete(CommandLine* this);
 CommandLine* from_string(char* string)
 {
+    return from_string_list(StringListClass.splitTransform(string, ' ', &replace_env_variables));
+}
+
+CommandLine* from_string_list(StringList* tokenList)
+{
     CommandLine* this = malloc(sizeof (CommandLine));
-    StringList* tokenList = StringListClass.splitTransform(string, ' ', &replace_env_variables);
     this->command = tokenList->peek(tokenList);
     this->arguments = tokenList;
     this->delete = &delete;

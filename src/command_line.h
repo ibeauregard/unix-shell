@@ -12,6 +12,7 @@ struct command_line {
 
 extern const struct command_line_class {
     CommandLine* (*fromString)(char* string);
+    CommandLine* (*fromStringList)(StringList* tokenList);
 } CommandLineClass;
 
 #endif
