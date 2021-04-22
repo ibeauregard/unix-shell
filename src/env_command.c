@@ -63,6 +63,7 @@ void execute(Command* this)
     delete(this);
 }
 
+static void process_u_argument(Command* this, char* argument, StringList* arguments);
 void process_flag_argument(Command* this, StringList* arguments)
 {
     char* argument = arguments->peek(arguments);
@@ -72,40 +73,46 @@ void process_flag_argument(Command* this, StringList* arguments)
         if (argument[i] == 'i') this->_internals->ignoreExistingEnvironment = true;
         else if (argument[i] == 'u') {
             u_argument_expected = true;
-        } else {
+        } else if (argument[i] != '-') {
             dprintf(STDERR_FILENO, "env: illegal option -- %c\n", argument[i]);
             this->_internals->parseError = true;
         }
     }
-    StringList* variablesToUnset = this->_internals->variablesToUnset;
-    if (!this->_internals->parseError && u_argument_expected) {
-        if (argument[i]) {
-            variablesToUnset->append(variablesToUnset, strdup(&argument[i]));
-        } else {
-            free(arguments->next(arguments));
-            if (arguments->isEmpty(arguments)) {
-                dprintf(STDERR_FILENO, "%s\n", "env: option requires an argument -- u");
-                this->_internals->parseError = true;
-                return;
-            } else {
-                argument = arguments->peek(arguments);
-                if (strchr(argument, '=')) {
-                    dprintf(STDERR_FILENO, "env: unsetenv %s: Invalid argument\n", argument);
-                    this->_internals->parseError = true;
-                } else {
-                    variablesToUnset->append(variablesToUnset, strdup(argument));
-                }
-            }
-        }
-    }
+    if (!this->_internals->parseError && u_argument_expected) process_u_argument(this, &argument[i], arguments);
     if (!argument[1]) this->_internals->ignoreExistingEnvironment = true;
-    free(arguments->next(arguments));
+    if (!arguments->isEmpty(arguments)) free(arguments->next(arguments));
 }
 
 void process_setenv_argument(Command* this, char* argument)
 {
     StringList* variablesToSet = this->_internals->variablesToSet;
     variablesToSet->append(variablesToSet, argument);
+}
+
+static void process_separate_u_argument(Command* this, char* argument);
+void process_u_argument(Command* this, char* argument, StringList* arguments)
+{
+    if (argument[0]) {
+        this->_internals->variablesToUnset->append(this->_internals->variablesToUnset, strdup(argument));
+    } else {
+        free(arguments->next(arguments));
+        if (arguments->isEmpty(arguments)) {
+            dprintf(STDERR_FILENO, "%s\n", "env: option requires an argument -- u");
+            this->_internals->parseError = true;
+        } else {
+            process_separate_u_argument(this, arguments->peek(arguments));
+        }
+    }
+}
+
+void process_separate_u_argument(Command* this, char* argument)
+{
+    if (strchr(argument, '=')) {
+        dprintf(STDERR_FILENO, "env: unsetenv %s: Invalid argument\n", argument);
+        this->_internals->parseError = true;
+    } else {
+        this->_internals->variablesToUnset->append(this->_internals->variablesToUnset, strdup(argument));
+    }
 }
 
 void delete(Command* this)
