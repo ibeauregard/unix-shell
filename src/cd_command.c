@@ -192,11 +192,11 @@ void change_directory(Command* this, struct state* state)
 
 void process_no_operand(Command* this, struct state* state)
 {
-    if (!strlen(state->home_value)) {
-        free_state(state);
-        state->interrupted = true;
-    } else {
+    if (strlen(state->home_value) > 0) {
         this->_internals->operand = strdup(state->home_value);
+    } else {
+        dprintf(STDERR_FILENO, "%s\n", "cd: HOME not set");
+        state->interrupted = true;
     }
 }
 
