@@ -2,9 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+static StringList* new();
 static StringList* split(char* string, char sep);
 static StringList* split_transform(char* string, char sep, StringTransformation* transformation);
 const struct string_list_class StringListClass = {
+        .new = &new,
         .split = &split,
         .splitTransform = &split_transform
 };
@@ -15,7 +17,6 @@ StringList* split(char* string, char sep)
     return split_transform(string, sep, &null_transformation);
 }
 
-static StringList* new();
 static void append(StringList* this, char* string);
 StringList* split_transform(char* string, char sep, StringTransformation* transformation)
 {
@@ -30,7 +31,7 @@ StringList* split_transform(char* string, char sep, StringTransformation* transf
     return this;
 }
 
-char* null_transformation(char* string)
+inline char* null_transformation(char* string)
 {
     return string;
 }

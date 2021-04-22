@@ -16,6 +16,7 @@ struct string_list {
 
 typedef char* StringTransformation(char* string);
 extern const struct string_list_class {
+    StringList* (*new)();
     StringList* (*split)(char* string, char sep);
     StringList* (*splitTransform)(char* string, char sep, StringTransformation* transformation);
 } StringListClass;

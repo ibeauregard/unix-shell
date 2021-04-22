@@ -77,6 +77,7 @@ int main(int argc, char* argv[], char* envp[])
     shell.execute(CommandLineClass.fromString("cd $HOME/.."));
     shell.execute(CommandLineClass.fromString("cd $HOME/../"));
     shell.execute(CommandLineClass.fromString("cd $HOME"));
+    shell.execute(CommandLineClass.fromString("env"));
     shell.delete();
     return EXIT_SUCCESS;
 }
