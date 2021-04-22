@@ -43,9 +43,11 @@ static void process_flag_argument(Command* this, char* argument);
 void parse_arguments(Command* this, StringList* arguments)
 {
     free(arguments->next(arguments)); // discard 'cd' argument (program name)
+    char* next_argument;
     while (!this->_internals->parseError
             && !arguments->isEmpty(arguments)
-            && arguments->peek(arguments)[0] == '-') {
+            && (next_argument = arguments->peek(arguments))[0] == '-'
+            && next_argument[1]) {
         process_flag_argument(this, arguments->next(arguments));
     }
     if (!this->_internals->parseError && !arguments->isEmpty(arguments)) {
@@ -56,6 +58,14 @@ void parse_arguments(Command* this, StringList* arguments)
         dprintf(STDERR_FILENO, "%s\n", "cd: Too many arguments");
         while (!arguments->isEmpty(arguments)) free(arguments->next(arguments));
     }
+}
+
+static void do_execute(Command* this);
+static void delete(Command* this);
+void execute(Command* this)
+{
+    if (!this->_internals->parseError) do_execute(this);
+    delete(this);
 }
 
 void process_flag_argument(Command* this, char* argument)
@@ -69,14 +79,6 @@ void process_flag_argument(Command* this, char* argument)
         }
     }
     free(argument);
-}
-
-static void do_execute(Command* this);
-static void delete(Command* this);
-void execute(Command* this)
-{
-    if (!this->_internals->parseError) do_execute(this);
-    delete(this);
 }
 
 struct state {
@@ -139,6 +141,55 @@ void set_operand(Command* this, struct state* state)
     }
 }
 
+bool starts_with_slash_or_dot_or_dot_dot(char* string)
+{
+    return string[0] == '/'
+           || (strlen(string) == 1 && string[0] == '.')
+           || (strlen(string) >= 2 && string[0] == '.' && string[1] == '/')
+           || (strlen(string) == 2 && string[0] == '.' && string[1] == '.')
+           || (strlen(string) >= 3 && string[0] == '.' && string[1] == '.' && string[2] == '/');
+}
+
+static char* join_with_slash(char* string1, char* string2);
+static bool names_a_directory(char* string);
+void browse_cdpath(char* operand, struct state* state)
+{
+    StringList* cdpathElements = StringListClass.split(state->cdpath_value, ':');
+    while (!state->curpath && !cdpathElements->isEmpty(cdpathElements)) {
+        char* pathname = cdpathElements->next(cdpathElements);
+        char* concatenation = join_with_slash(pathname, operand);
+        if (names_a_directory(concatenation)) state->curpath = concatenation;
+        else free(concatenation);
+        free(pathname);
+    }
+    if (!state->curpath) {
+        char* concatenation = join_with_slash(".", operand);
+        if (names_a_directory(concatenation)) state->curpath = concatenation;
+        else free(concatenation);
+    }
+    cdpathElements->delete(cdpathElements);
+}
+
+static void prepend_to_curpath(struct state* state);
+static void make_curpath_canonical(struct state* state);
+static void make_curpath_relative(struct state* state);
+void adjust_curpath(struct state* state)
+{
+    if (state->curpath[0] != '/') prepend_to_curpath(state);
+    make_curpath_canonical(state);
+    if (!state->interrupted) make_curpath_relative(state);
+}
+
+static void set_pwd(Command* this, struct state* state);
+void change_directory(Command* this, struct state* state)
+{
+    if (chdir(state->curpath) == -1) {
+        dprintf(STDERR_FILENO, "cd: %s: %s\n", strerror(errno), state->curpath);
+        state->interrupted = true;
+    }
+    if (!state->interrupted) set_pwd(this, state);
+}
+
 void process_no_operand(Command* this, struct state* state)
 {
     if (!strlen(state->home_value)) {
@@ -172,35 +223,6 @@ void process_tilde_operand(Command* this, struct state* state)
     }
 }
 
-bool starts_with_slash_or_dot_or_dot_dot(char* string)
-{
-    return string[0] == '/'
-           || (strlen(string) == 1 && string[0] == '.')
-           || (strlen(string) >= 2 && string[0] == '.' && string[1] == '/')
-           || (strlen(string) == 2 && string[0] == '.' && string[1] == '.')
-           || (strlen(string) >= 3 && string[0] == '.' && string[1] == '.' && string[2] == '/');
-}
-
-static char* join_with_slash(char* string1, char* string2);
-static bool names_a_directory(char* string);
-void browse_cdpath(char* operand, struct state* state)
-{
-    StringList* cdpathElements = StringListClass.split(state->cdpath_value, ':');
-    while (!state->curpath && !cdpathElements->isEmpty(cdpathElements)) {
-        char* pathname = cdpathElements->next(cdpathElements);
-        char* concatenation = join_with_slash(pathname, operand);
-        if (names_a_directory(concatenation)) state->curpath = concatenation;
-        else free(concatenation);
-        free(pathname);
-    }
-    if (!state->curpath) {
-        char* concatenation = join_with_slash(".", operand);
-        if (names_a_directory(concatenation)) state->curpath = concatenation;
-        else free(concatenation);
-    }
-    cdpathElements->delete(cdpathElements);
-}
-
 char* join_with_slash(char* string1, char* string2)
 {
     size_t string1Length = strlen(string1);
@@ -218,16 +240,6 @@ bool names_a_directory(char* string)
     return S_ISDIR(statbuf.st_mode);
 }
 
-static void prepend_to_curpath(struct state* state);
-static void make_curpath_canonical(struct state* state);
-static void make_curpath_relative(struct state* state);
-void adjust_curpath(struct state* state)
-{
-    if (state->curpath[0] != '/') prepend_to_curpath(state);
-    make_curpath_canonical(state);
-    if (!state->interrupted) make_curpath_relative(state);
-}
-
 void prepend_to_curpath(struct state* state)
 {
     char* old_curpath = state->curpath;
@@ -237,13 +249,14 @@ void prepend_to_curpath(struct state* state)
 
 static void process_dot_component(struct state* state, size_t component_index);
 static size_t process_dot_dot_component(struct state* state, size_t component_index);
+static void interrupt_if_curpath_is_empty(struct state* state);
 void make_curpath_canonical(struct state* state)
 {
     size_t i = 0;
     while (!state->interrupted && state->curpath[i]) {
         for (; state->curpath[i]
-                && !(state->curpath[i] == '.'
-                        && (i == 0 || state->curpath[i - 1] == '/')); i++);
+               && !(state->curpath[i] == '.'
+                    && (i == 0 || state->curpath[i - 1] == '/')); i++);
         if (state->curpath[i]) {
             if (state->curpath[i + 1] == 0
                 || state->curpath[i + 1] == '/') process_dot_component(state, i);
@@ -252,7 +265,37 @@ void make_curpath_canonical(struct state* state)
                          || state->curpath[i + 2] == '/')) i = process_dot_dot_component(state, i);
         }
     }
-    if (i == 0) state->interrupted = true;
+    interrupt_if_curpath_is_empty(state);
+}
+
+void make_curpath_relative(struct state* state)
+{
+    state->absolute_curpath = strdup(state->curpath);
+    char* pwd = join_with_slash(state->pwd_value, "");
+    size_t pwd_length = strlen(pwd);
+    if (!strncmp(pwd, state->curpath, pwd_length)) {
+        size_t curpath_length = strlen(state->curpath);
+        for (size_t i = pwd_length; i <= curpath_length; i++) { // <= to copy '\0'
+            state->curpath[i - pwd_length] = state->curpath[i];
+        }
+    }
+    interrupt_if_curpath_is_empty(state);
+    free(pwd);
+}
+
+static void set_pwd_value(char* pwd_value);
+void set_pwd(Command* this, struct state* state)
+{
+    char pwd_value[PATH_MAX];
+    if (this->_internals->pOption) {
+        if (!getcwd(pwd_value, PATH_MAX)) state->interrupted = true;
+    } else {
+        strcpy(pwd_value, state->absolute_curpath);
+    }
+    if (!state->interrupted) {
+        if (state->print_new_directory_name) puts(pwd_value);
+        set_pwd_value(pwd_value);
+    }
 }
 
 void process_dot_component(struct state* state, size_t component_index)
@@ -267,9 +310,9 @@ void process_dot_component(struct state* state, size_t component_index)
 
 static size_t get_previous_component_length(struct state* state, size_t component_index);
 static size_t get_backward_offset(
-                struct state* state,
-                size_t component_index,
-                size_t previous_component_length);
+        struct state* state,
+        size_t component_index,
+        size_t previous_component_length);
 static size_t get_forward_offset(struct state* state, size_t component_index);
 size_t process_dot_dot_component(struct state* state, size_t component_index)
 {
@@ -289,6 +332,20 @@ size_t process_dot_dot_component(struct state* state, size_t component_index)
         state->curpath[i - backward_offset] = state->curpath[i + forward_offset];
     }
     return component_index - backward_offset;
+}
+
+void interrupt_if_curpath_is_empty(struct state* state)
+{
+    if (!state->curpath[0]) state->interrupted = true;
+}
+
+void set_pwd_value(char* pwd_value)
+{
+    Environment* environment = shell.environment;
+    char* oldpwd_value = environment->getValueFromId(environment, "PWD");
+    environment->setVariable(environment, VariableClass.fromIdAndValue("OLDPWD", oldpwd_value), true);
+    free(oldpwd_value);
+    environment->setVariable(environment, VariableClass.fromIdAndValue("PWD", pwd_value), true);
 }
 
 size_t get_previous_component_length(struct state* state, size_t component_index)
@@ -319,52 +376,6 @@ size_t get_forward_offset(struct state* state, size_t component_index)
          state->curpath[component_index + forward_offset] == '/';
          forward_offset++);
     return forward_offset;
-}
-
-void make_curpath_relative(struct state* state)
-{
-    state->absolute_curpath = strdup(state->curpath);
-    char* pwd = join_with_slash(state->pwd_value, "");
-    size_t pwd_length = strlen(pwd);
-    if (!strncmp(pwd, state->curpath, pwd_length)) {
-        size_t curpath_length = strlen(state->curpath);
-        for (size_t i = pwd_length; i <= curpath_length; i++) { // <= to copy '\0'
-            state->curpath[i - pwd_length] = state->curpath[i];
-        }
-    }
-    if (!state->curpath[0]) state->interrupted = true;
-    free(pwd);
-}
-
-static void set_pwd(Command* this, struct state* state);
-void change_directory(Command* this, struct state* state)
-{
-    if (chdir(state->curpath) == -1) {
-        dprintf(STDERR_FILENO, "cd: %s: %s\n", strerror(errno), state->curpath);
-        state->interrupted = true;
-    }
-    if (!state->interrupted) set_pwd(this, state);
-}
-
-static void set_pwd_value(char* pwd_value);
-void set_pwd(Command* this, struct state* state)
-{
-    char pwd_value[PATH_MAX];
-    if (this->_internals->pOption) {
-        if (!getcwd(pwd_value, PATH_MAX)) state->interrupted = true;
-    } else {
-        strcpy(pwd_value, state->absolute_curpath);
-    }
-    if (!state->interrupted) set_pwd_value(pwd_value);
-}
-
-void set_pwd_value(char* pwd_value)
-{
-    Environment* environment = shell.environment;
-    char* oldpwd_value = environment->getValueFromId(environment, "PWD");
-    environment->setVariable(environment, VariableClass.fromIdAndValue("OLDPWD", oldpwd_value), true);
-    free(oldpwd_value);
-    environment->setVariable(environment, VariableClass.fromIdAndValue("PWD", pwd_value), true);
 }
 
 void free_state(struct state* state)
