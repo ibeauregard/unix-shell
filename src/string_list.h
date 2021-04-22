@@ -7,6 +7,7 @@
 typedef struct string_list StringList;
 struct string_list {
     struct internals* _internals;
+    void (*append)(StringList* this, char* string);
     char* (*peek)(StringList* this);
     char* (*next)(StringList* this);
     bool (*isEmpty)(StringList* this);

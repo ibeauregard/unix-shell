@@ -53,6 +53,7 @@ StringList* new()
     StringList* this = malloc(sizeof (StringList));
     this->_internals = malloc(sizeof (struct internals));
     this->_internals->head = this->_internals->tail = NULL; this->_internals->length = 0;
+    this->append = &append;
     this->peek = &peek;
     this->next = &next;
     this->isEmpty = &is_empty;

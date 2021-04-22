@@ -78,6 +78,16 @@ int main(int argc, char* argv[], char* envp[])
     shell.execute(CommandLineClass.fromString("cd $HOME/../"));
     shell.execute(CommandLineClass.fromString("cd $HOME"));
     shell.execute(CommandLineClass.fromString("env"));
+    shell.execute(CommandLineClass.fromString("env -i"));
+    shell.execute(CommandLineClass.fromString("env -ia"));
+    shell.execute(CommandLineClass.fromString("env -iu"));
+    shell.execute(CommandLineClass.fromString("env -u"));
+    shell.execute(CommandLineClass.fromString("env -iu HOME="));
+    shell.execute(CommandLineClass.fromString("env -u HOME="));
+    shell.execute(CommandLineClass.fromString("env -iu HOME"));
+    shell.execute(CommandLineClass.fromString("env -u HOME"));
+    shell.execute(CommandLineClass.fromString("env -iu HOME roger=cyr"));
+    shell.execute(CommandLineClass.fromString("env -u HOME roger=cyr eric=pickup"));
     shell.delete();
     return EXIT_SUCCESS;
 }
