@@ -62,6 +62,7 @@ struct internals* get_internals_from_string(char* variable)
 
 struct internals* get_internals_from_id_and_value(char* id, char* value)
 {
+    if (strchr(id, '=')) return NULL;
     struct internals* internals = malloc(sizeof (struct internals));
     internals->id = strdup(id);
     internals->value = strdup(value);
