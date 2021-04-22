@@ -10,17 +10,22 @@ const struct variable_class VariableClass = {
         .fromIdAndValue = &from_id_and_value
 };
 
-static struct internals* get_internals_from_string(char* variable);
+struct internals* get_internals_from_id_and_value(char* id, char* value);
 static Variable* new(struct internals* internals);
 Variable* from_string(char* string)
 {
-    return new(get_internals_from_string(string));
+    long equal_sign_index = strchr(string, '=') - string;
+    if (equal_sign_index < 0) return NULL;
+    return new(get_internals_from_id_and_value(
+            strndup(string, equal_sign_index),
+            strdup(&string[equal_sign_index + 1])));
 }
 
-struct internals* get_internals_from_id_and_value(char* id, char* value);
+
 Variable* from_id_and_value(char* id, char* value)
 {
-    return new(get_internals_from_id_and_value(id, value));
+    if (strchr(id, '=')) return NULL;
+    return new(get_internals_from_id_and_value(strdup(id), strdup(value)));
 }
 
 struct internals {
@@ -28,22 +33,11 @@ struct internals {
     char* value;
 };
 
-struct internals* get_internals_from_string(char* variable)
-{
-    long equal_sign_index = strchr(variable, '=') - variable;
-    if (equal_sign_index < 0) return NULL;
-    struct internals* internals = malloc(sizeof (struct internals));
-    internals->id = strndup(variable, equal_sign_index);
-    internals->value = strdup(&variable[equal_sign_index + 1]);
-    return internals;
-}
-
 struct internals* get_internals_from_id_and_value(char* id, char* value)
 {
-    if (strchr(id, '=')) return NULL;
     struct internals* internals = malloc(sizeof (struct internals));
-    internals->id = strdup(id);
-    internals->value = strdup(value);
+    internals->id = id;
+    internals->value = value;
     return internals;
 }
 
@@ -55,7 +49,6 @@ static char* to_string(Variable* this);
 static void delete(Variable* this);
 Variable* new(struct internals* internals)
 {
-    if (!internals) return NULL;
     Variable* this = malloc(sizeof (Variable));
     this->_internals = internals;
     this->getId = &get_id;
