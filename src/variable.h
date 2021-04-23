@@ -9,7 +9,7 @@ struct variable {
     void (*setValue)(Variable* this, char* value);
     void (*print)(Variable* this);
     char* (*toString)(Variable* this);
-    void (*delete)(Variable* this);
+    void (*delete)(Variable** this);
 };
 
 extern const struct variable_class {

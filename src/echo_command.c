@@ -21,7 +21,7 @@ Command* with_args(StringList* arguments)
     return this;
 }
 
-static void delete(Command* this);
+static void delete(Command** this);
 void execute(Command* this)
 {
     StringList* arguments = this->_internals->arguments;
@@ -32,11 +32,11 @@ void execute(Command* this)
         free(argument);
     }
     puts("");
-    delete(this);
+    delete(&this);
 }
 
-void delete(Command* this)
+void delete(Command** this)
 {
-    free(this->_internals); this->_internals = NULL;
-    free(this);
+    free((*this)->_internals);
+    free(*this); *this = NULL;
 }

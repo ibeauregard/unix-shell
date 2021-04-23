@@ -60,11 +60,11 @@ void parse_arguments(Command* this, StringList* arguments)
 }
 
 static void do_execute(Command* this);
-static void delete(Command* this);
+static void delete(Command** this);
 void execute(Command* this)
 {
     if (!this->_internals->parseError) do_execute(this);
-    delete(this);
+    delete(&this);
 }
 
 static void process_u_argument(Command* this, char* argument, StringList* arguments);
@@ -151,13 +151,11 @@ void process_separate_u_argument(Command* this, char* argument)
     }
 }
 
-void delete(Command* this)
+void delete(Command** this)
 {
-    struct internals* internals = this->_internals;
-    internals->variablesToUnset->delete(internals->variablesToUnset);
-    internals->variablesToUnset = NULL;
-    internals->variablesToSet->delete(internals->variablesToSet);
-    internals->variablesToSet = NULL;
-    free(internals); this->_internals = NULL;
-    free(this);
+    struct internals* internals = (*this)->_internals;
+    internals->variablesToUnset->delete(&internals->variablesToUnset);
+    internals->variablesToSet->delete(&internals->variablesToSet);
+    free(internals);
+    free(*this); *this = NULL;
 }

@@ -12,7 +12,7 @@ const struct command_line_class CommandLineClass = {
 };
 
 static char* replace_env_variables(char* string);
-static void delete(CommandLine* this);
+static void delete(CommandLine** this);
 CommandLine* from_string(char* string)
 {
     return from_string_list(StringListClass.splitTransform(string, ' ', &replace_env_variables));
@@ -58,8 +58,8 @@ char* replace_env_variable(char* string, size_t dollar_sign_index, size_t var_id
     return new_string;
 }
 
-void delete(CommandLine* this)
+void delete(CommandLine** this)
 {
-    this->arguments->delete(this->arguments); this->arguments = NULL;
-    free(this);
+    (*this)->arguments->delete(&(*this)->arguments);
+    free(*this); *this = NULL;
 }

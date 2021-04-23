@@ -61,11 +61,11 @@ void parse_arguments(Command* this, StringList* arguments)
 }
 
 static void do_execute(Command* this);
-static void delete(Command* this);
+static void delete(Command** this);
 void execute(Command* this)
 {
     if (!this->_internals->parseError) do_execute(this);
-    delete(this);
+    delete(&this);
 }
 
 void process_flag_argument(Command* this, char* argument)
@@ -167,7 +167,7 @@ void browse_cdpath(char* operand, struct state* state)
         if (names_a_directory(concatenation)) state->curpath = concatenation;
         else free(concatenation);
     }
-    cdpathElements->delete(cdpathElements);
+    cdpathElements->delete(&cdpathElements);
 }
 
 static void prepend_to_curpath(struct state* state);
@@ -388,9 +388,9 @@ void free_state(struct state* state)
     free(state->oldpwd_value);
 }
 
-void delete(Command* this)
+void delete(Command** this)
 {
-    free(this->_internals->operand); this->_internals->operand = NULL;
-    free(this->_internals); this->_internals = NULL;
-    free(this);
+    free((*this)->_internals->operand);
+    free((*this)->_internals);
+    free(*this); *this = NULL;
 }

@@ -7,7 +7,7 @@ typedef struct command_line CommandLine;
 struct command_line {
     char* command;
     StringList* arguments;
-    void (*delete)(CommandLine* this);
+    void (*delete)(CommandLine** this);
 };
 
 extern const struct command_line_class {

@@ -22,7 +22,7 @@ Command* with_args(StringList* arguments)
     return this;
 }
 
-static void delete(Command* this);
+static void delete(Command** this);
 void execute(Command* this)
 {
     StringList* variableIds = this->_internals->variableIds;
@@ -32,11 +32,11 @@ void execute(Command* this)
         environment->unsetVariable(environment, variable_id);
         free(variable_id);
     }
-    delete(this);
+    delete(&this);
 }
 
-void delete(Command* this)
+void delete(Command** this)
 {
-    free(this->_internals); this->_internals = NULL;
-    free(this);
+    free((*this)->_internals);
+    free(*this); *this = NULL;
 }

@@ -18,7 +18,7 @@ static void set_variable(Environment* this, Variable* variable, bool overwrite);
 static void unset_variable(Environment* this, char* id);
 static void print(Environment* this);
 static char** serialize(Environment* this);
-static void delete(Environment* this);
+static void delete(Environment** this);
 Environment* from_string_array(char* envp[])
 {
     Environment* this = malloc(sizeof (Environment));
@@ -74,7 +74,7 @@ void set_variable(Environment* this, Variable* variable, bool overwrite)
     if (!seen) {
         insert(this, variable);
     } else {
-        variable->delete(variable);
+        variable->delete(&variable);
     }
 }
 
@@ -84,7 +84,7 @@ void unset_variable(Environment* this, char* id)
     if (!node) return;
     if (!strcmp(id, node->variable->getId(node->variable))) {
         this->_internals->head = node->next;
-        node->variable->delete(node->variable); node->variable = NULL;
+        node->variable->delete(&node->variable);
         free(node);
         return;
     }
@@ -94,7 +94,7 @@ void unset_variable(Environment* this, char* id)
     if (node->next) {
         VariableNode* deleted = node->next;
         node->next = node->next->next;
-        deleted->variable->delete(deleted->variable); deleted->variable = NULL;
+        deleted->variable->delete(&deleted->variable);
         free(deleted);
     }
 }
@@ -122,15 +122,15 @@ char** serialize(Environment* this)
     return serialized;
 }
 
-void delete(Environment* this)
+void delete(Environment** this)
 {
-    VariableNode* node = this->_internals->head;
+    VariableNode* node = (*this)->_internals->head;
     while (node) {
         VariableNode* next = node->next;
-        node->variable->delete(node->variable); node->variable = NULL;
+        node->variable->delete(&node->variable);
         free(node);
         node = next;
     }
-    free(this->_internals);
-    free(this);
+    free((*this)->_internals);
+    free(*this); *this = NULL;
 }

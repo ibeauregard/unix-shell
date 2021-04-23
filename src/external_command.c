@@ -29,7 +29,7 @@ Command* from_command_line(CommandLine* commandLine)
 
 static char* get_command_pathname(char* command);
 static void fork_and_execute(Command* this, char* pathname);
-static void delete(Command* this);
+static void delete(Command** this);
 void execute(Command* this)
 {
     char* invokedCommand = this->_internals->commandLine->command;
@@ -40,7 +40,7 @@ void execute(Command* this)
         dprintf(STDERR_FILENO, "my_zsh: Command not found: %s\n", invokedCommand);
     }
     free(pathname);
-    delete(this);
+    delete(&this);
 }
 
 static char* search_in_path(char* command);
@@ -74,7 +74,7 @@ char* search_in_path(char* command)
         }
         free(directory);
     }
-    pathElements->delete(pathElements);
+    pathElements->delete(&pathElements);
     return pathname;
 }
 
@@ -109,8 +109,8 @@ bool command_in_directory(char* command, char* dirpath)
     return found;
 }
 
-void delete(Command* this)
+void delete(Command** this)
 {
-    free(this->_internals); this->_internals = NULL;
-    free(this);
+    free((*this)->_internals);
+    free(*this); *this = NULL;
 }

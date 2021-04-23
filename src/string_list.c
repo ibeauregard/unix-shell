@@ -47,7 +47,7 @@ static char* peek(StringList* this);
 static char* next(StringList* this);
 static bool is_empty(StringList* this);
 static char** to_string_array(StringList* this);
-static void delete(StringList* this);
+static void delete(StringList** this);
 StringList* new()
 {
     StringList* this = malloc(sizeof (StringList));
@@ -114,11 +114,11 @@ char** to_string_array(StringList* this)
     return array;
 }
 
-void delete(StringList* this)
+void delete(StringList** this)
 {
-    while (!is_empty(this)) {
-        free(next(this));
+    while (!is_empty(*this)) {
+        free(next(*this));
     }
-    free(this->_internals); this->_internals = NULL;
-    free(this);
+    free((*this)->_internals);
+    free(*this); *this = NULL;
 }

@@ -38,7 +38,7 @@ struct internals* initialize_internals(StringList* arguments)
     return internals;
 }
 
-static void delete(Command* this);
+static void delete(Command** this);
 void execute(Command* this)
 {
     StringList* variables = this->_internals->variables;
@@ -50,11 +50,11 @@ void execute(Command* this)
         free(variable_string);
         if (variable) environment->setVariable(environment, variable, overwrite);
     }
-    delete(this);
+    delete(&this);
 }
 
-void delete(Command* this)
+void delete(Command** this)
 {
-    free(this->_internals); this->_internals = NULL;
-    free(this);
+    free((*this)->_internals);
+    free(*this); *this = NULL;
 }

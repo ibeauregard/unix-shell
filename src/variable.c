@@ -46,7 +46,7 @@ static char* get_value(Variable* this);
 static void set_value(Variable* this, char* value);
 static void print(Variable* this);
 static char* to_string(Variable* this);
-static void delete(Variable* this);
+static void delete(Variable** this);
 Variable* new(struct internals* internals)
 {
     Variable* this = malloc(sizeof (Variable));
@@ -90,11 +90,11 @@ char* to_string(Variable* this)
     return string;
 }
 
-void delete(Variable* this)
+void delete(Variable** this)
 {
-    struct internals* internals = this->_internals;
-    free(internals->id); internals->id = NULL;
-    free(internals->value); internals->value = NULL;
-    free(internals); this->_internals = NULL;
-    free(this);
+    struct internals* internals = (*this)->_internals;
+    free(internals->id);
+    free(internals->value);
+    free(internals);
+    free(*this); *this = NULL;
 }

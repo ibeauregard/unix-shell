@@ -13,10 +13,10 @@ void execute(CommandLine* line)
 {
     Command* command = CommandFactory.fromCommandLine(line);
     command->execute(command);
-    line->delete(line);
+    line->delete(&line);
 }
 
 void delete()
 {
-    shell.environment->delete(shell.environment); shell.environment = NULL;
+    shell.environment->delete(&shell.environment);
 }
