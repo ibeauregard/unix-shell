@@ -266,6 +266,7 @@ void make_curpath_canonical(struct state* state)
                          || state->curpath[i + 2] == '/')) i = process_dot_dot_component(state, i);
         }
     }
+    if (!strcmp(state->curpath, "/..")) state->curpath[1] = 0;
     interrupt_if_curpath_is_empty(state);
 }
 

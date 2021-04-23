@@ -19,5 +19,6 @@ int main(int argc, char* argv[], char* envp[])
     }
     free(line);
     shell.delete();
+    puts("");
     return EXIT_SUCCESS;
 }

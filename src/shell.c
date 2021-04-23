@@ -3,6 +3,7 @@
 #include "command_factory.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 static void display_prompt();
 static void execute(CommandLine* line);
@@ -13,10 +14,11 @@ struct shell shell = {
         .delete = &delete
 };
 
+static char* get_prompt_pwd(char* pwd);
 void display_prompt()
 {
     char* pwd = shell.environment->getValueFromId(shell.environment, "PWD");
-    printf("%s\n> ", pwd);
+    printf("%s\n> ", get_prompt_pwd(pwd));
     free(pwd);
 }
 
@@ -26,6 +28,23 @@ void execute(CommandLine* line)
     command->execute(command);
     line->delete(&line);
     puts("");
+}
+
+char* get_prompt_pwd(char* pwd)
+{
+    size_t i;
+    for (i = strlen(pwd); i > 1 && pwd[i - 1] == '/'; i--);
+    pwd[i] = 0;
+    char* home = shell.environment->getValueFromId(shell.environment, "HOME");
+    size_t home_length;
+    for (home_length = strlen(home); home_length > 0 && home[home_length - 1] == '/'; home_length--);
+    home[home_length] = 0;
+    if (home_length > 0 && !strncmp(home, pwd, home_length)) {
+        pwd[home_length - 1] = '~';
+        pwd += home_length - 1;
+    }
+    free(home);
+    return pwd;
 }
 
 void delete()
