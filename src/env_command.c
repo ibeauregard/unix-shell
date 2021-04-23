@@ -1,4 +1,6 @@
 #include "env_command.h"
+#include "shell.h"
+#include "environment.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -57,9 +59,11 @@ void parse_arguments(Command* this, StringList* arguments)
     this->_internals->command = arguments;
 }
 
+static void do_execute(Command* this);
 static void delete(Command* this);
 void execute(Command* this)
 {
+    if (!this->_internals->parseError) do_execute(this);
     delete(this);
 }
 
@@ -89,6 +93,18 @@ void process_setenv_argument(Command* this, char* argument)
     variablesToSet->append(variablesToSet, argument);
 }
 
+static void prepare_modified_environment(Command* this);
+static void run_command_with_modified_environment(Command* this);
+static void delete_modified_environment();
+void do_execute(Command* this)
+{
+    Environment* existing_environment = shell.environment;
+    prepare_modified_environment(this);
+    run_command_with_modified_environment(this);
+    delete_modified_environment();
+    shell.environment = existing_environment;
+}
+
 static void process_separate_u_argument(Command* this, char* argument);
 void process_u_argument(Command* this, char* argument, StringList* arguments)
 {
@@ -103,6 +119,26 @@ void process_u_argument(Command* this, char* argument, StringList* arguments)
             process_separate_u_argument(this, arguments->peek(arguments));
         }
     }
+}
+
+void prepare_modified_environment(Command* this)
+{
+    (void)this;
+}
+
+void run_command_with_modified_environment(Command* this)
+{
+    StringList* commandTokens = this->_internals->command;
+    if (commandTokens->isEmpty(commandTokens)) {
+        shell.environment->print(shell.environment);
+    } else {
+        shell.execute(CommandLineClass.fromStringList(this->_internals->command));
+    }
+}
+
+inline void delete_modified_environment()
+{
+//    shell.environment->delete(shell.environment);
 }
 
 void process_separate_u_argument(Command* this, char* argument)
