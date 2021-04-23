@@ -47,6 +47,7 @@ static char* peek(StringList* this);
 static char* next(StringList* this);
 static bool is_empty(StringList* this);
 static char** to_string_array(StringList* this);
+static StringList* deep_copy(StringList* this);
 static void delete(StringList** this);
 StringList* new()
 {
@@ -58,6 +59,7 @@ StringList* new()
     this->next = &next;
     this->isEmpty = &is_empty;
     this->toStringArray = &to_string_array;
+    this->copy = &deep_copy;
     this->delete = &delete;
     return this;
 }
@@ -112,6 +114,17 @@ char** to_string_array(StringList* this)
     }
     array[i] = NULL;
     return array;
+}
+
+StringList* deep_copy(StringList* this)
+{
+    StringList* copy = new();
+    StringNode* node = this->_internals->head;
+    while (node) {
+        append(copy, strdup(node->value));
+        node = node->next;
+    }
+    return copy;
 }
 
 void delete(StringList** this)

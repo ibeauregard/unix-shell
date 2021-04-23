@@ -132,7 +132,8 @@ void run_command_with_modified_environment(Command* this)
     if (commandTokens->isEmpty(commandTokens)) {
         shell.environment->print(shell.environment);
     } else {
-        shell.execute(CommandLineClass.fromStringList(this->_internals->command));
+        shell.execute(CommandLineClass.fromStringList(
+                this->_internals->command->copy(this->_internals->command)));
     }
 }
 

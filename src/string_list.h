@@ -12,6 +12,7 @@ struct string_list {
     char* (*next)(StringList* this);
     bool (*isEmpty)(StringList* this);
     char** (*toStringArray)(StringList* this);
+    StringList* (*copy)(StringList* this);
     void (*delete)(StringList** this);
 };
 
