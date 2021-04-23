@@ -8,12 +8,14 @@
 
 int main(int argc, char* argv[], char* envp[])
 {
-    (void)argc, (void)argv;
+    (void) argc, (void) argv;
     shell.environment = EnvironmentClass.fromStringArray(envp);
+    shell.displayPrompt();
     char* line = NULL;
     size_t length = 0;
     while (getline(&line, &length, stdin) != -1) {
         shell.execute(CommandLineClass.fromString(strstrip(line)));
+        shell.displayPrompt();
     }
     free(line);
     shell.delete();
