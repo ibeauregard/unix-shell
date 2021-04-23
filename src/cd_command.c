@@ -390,7 +390,7 @@ void free_state(struct state* state)
 
 void delete(Command* this)
 {
-    free(this->_internals->operand);
-    free(this->_internals);
-    free(this); this = NULL;
+    free(this->_internals->operand); this->_internals->operand = NULL;
+    free(this->_internals); this->_internals = NULL;
+    free(this);
 }

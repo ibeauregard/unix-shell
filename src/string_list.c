@@ -96,7 +96,7 @@ char* next(StringList* this)
     StringNode* current_head = this->_internals->head;
     StringNode* new_head = current_head->next;
     char* popped = current_head->value;
-    free(current_head); current_head = NULL;
+    free(current_head); this->_internals->head = NULL;
     this->_internals->head = new_head;
     if (!new_head) this->_internals->tail = NULL;
     this->_internals->length--;
@@ -119,6 +119,6 @@ void delete(StringList* this)
     while (!is_empty(this)) {
         free(next(this));
     }
-    free(this->_internals);
-    free(this); this = NULL;
+    free(this->_internals); this->_internals = NULL;
+    free(this);
 }

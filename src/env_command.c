@@ -155,7 +155,9 @@ void delete(Command* this)
 {
     struct internals* internals = this->_internals;
     internals->variablesToUnset->delete(internals->variablesToUnset);
+    internals->variablesToUnset = NULL;
     internals->variablesToSet->delete(internals->variablesToSet);
-    free(internals);
-    free(this); this = NULL;
+    internals->variablesToSet = NULL;
+    free(internals); this->_internals = NULL;
+    free(this);
 }

@@ -18,5 +18,5 @@ void execute(CommandLine* line)
 
 void delete()
 {
-    shell.environment->delete(shell.environment);
+    shell.environment->delete(shell.environment); shell.environment = NULL;
 }

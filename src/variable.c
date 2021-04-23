@@ -93,8 +93,8 @@ char* to_string(Variable* this)
 void delete(Variable* this)
 {
     struct internals* internals = this->_internals;
-    free(internals->id);
-    free(internals->value);
-    free(internals);
-    free(this); this = NULL;
+    free(internals->id); internals->id = NULL;
+    free(internals->value); internals->value = NULL;
+    free(internals); this->_internals = NULL;
+    free(this);
 }

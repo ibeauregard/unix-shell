@@ -84,7 +84,7 @@ void unset_variable(Environment* this, char* id)
     if (!node) return;
     if (!strcmp(id, node->variable->getId(node->variable))) {
         this->_internals->head = node->next;
-        node->variable->delete(node->variable);
+        node->variable->delete(node->variable); node->variable = NULL;
         free(node);
         return;
     }
@@ -94,7 +94,7 @@ void unset_variable(Environment* this, char* id)
     if (node->next) {
         VariableNode* deleted = node->next;
         node->next = node->next->next;
-        deleted->variable->delete(deleted->variable);
+        deleted->variable->delete(deleted->variable); deleted->variable = NULL;
         free(deleted);
     }
 }
@@ -127,7 +127,7 @@ void delete(Environment* this)
     VariableNode* node = this->_internals->head;
     while (node) {
         VariableNode* next = node->next;
-        node->variable->delete(node->variable);
+        node->variable->delete(node->variable); node->variable = NULL;
         free(node);
         node = next;
     }

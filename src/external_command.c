@@ -111,6 +111,6 @@ bool command_in_directory(char* command, char* dirpath)
 
 void delete(Command* this)
 {
-    free(this->_internals);
-    free(this); this = NULL;
+    free(this->_internals); this->_internals = NULL;
+    free(this);
 }

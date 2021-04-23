@@ -60,6 +60,6 @@ char* replace_env_variable(char* string, size_t dollar_sign_index, size_t var_id
 
 void delete(CommandLine* this)
 {
-    this->arguments->delete(this->arguments);
-    free(this); this = NULL;
+    this->arguments->delete(this->arguments); this->arguments = NULL;
+    free(this);
 }

@@ -37,6 +37,6 @@ void execute(Command* this)
 
 void delete(Command* this)
 {
-    free(this->_internals);
-    free(this); this = NULL;
+    free(this->_internals); this->_internals = NULL;
+    free(this);
 }
