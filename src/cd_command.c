@@ -93,6 +93,11 @@ struct state {
     bool interrupted;
 };
 
+/***
+ * This is an implementation of the cd algorithm specified by the POSIX Programmer's Manual.
+ * See https://man7.org/linux/man-pages/man1/cd.1p.html.
+ */
+
 static struct state initialize_state();
 static void set_operand(Command* this, struct state* state);
 static bool starts_with_slash_or_dot_or_dot_dot(char* string);
