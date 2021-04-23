@@ -16,6 +16,7 @@ struct internals {
 
 static char* get_value_from_id(Environment* this, char* id);
 static void set_variable(Environment* this, Variable* variable, bool overwrite);
+static void set_variables(Environment* this, StringList* variables, bool overwrite);
 static void unset_variable(Environment* this, char* id);
 static void unset_variables(Environment* this, StringList* ids);
 static void print(Environment* this);
@@ -29,6 +30,7 @@ Environment* new()
     this->_internals->head = NULL;
     this->getValueFromId = &get_value_from_id;
     this->setVariable = &set_variable;
+    this->setVariables = &set_variables;
     this->unsetVariable = &unset_variable;
     this->unsetVariables = &unset_variables;
     this->print = &print;
@@ -87,6 +89,15 @@ void set_variable(Environment* this, Variable* variable, bool overwrite)
         insert(this, variable);
     } else {
         variable->delete(&variable);
+    }
+}
+
+void set_variables(Environment* this, StringList* variables, bool overwrite)
+{
+    while (!variables->isEmpty(variables)) {
+        char* variable = variables->next(variables);
+        this->setVariable(this, VariableClass.fromString(variable), overwrite);
+        free(variable);
     }
 }
 

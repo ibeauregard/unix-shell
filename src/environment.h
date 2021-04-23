@@ -10,6 +10,7 @@ struct environment {
     struct internals* _internals;
     char* (*getValueFromId)(Environment* this, char* id);
     void (*setVariable)(Environment* this, Variable* variable, bool overwrite);
+    void (*setVariables)(Environment* this, StringList* variables, bool overwrite);
     void (*unsetVariable)(Environment* this, char* variable_id);
     void (*unsetVariables)(Environment* this, StringList* variable_ids);
     void (*print)(Environment* this);
