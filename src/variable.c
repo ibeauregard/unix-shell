@@ -46,6 +46,7 @@ static char* get_value(Variable* this);
 static void set_value(Variable* this, char* value);
 static void print(Variable* this);
 static char* to_string(Variable* this);
+static Variable* copy(Variable* this);
 static void delete(Variable** this);
 Variable* new(struct internals* internals)
 {
@@ -56,6 +57,7 @@ Variable* new(struct internals* internals)
     this->setValue = &set_value;
     this->print = &print;
     this->toString = &to_string;
+    this->copy = &copy;
     this->delete = &delete;
     return this;
 }
@@ -88,6 +90,11 @@ char* to_string(Variable* this)
     char* string = malloc(strlen(internals->id) + strlen(internals->value) + 2);
     strcat(strcat(strcpy(string, internals->id), "="), internals->value);
     return string;
+}
+
+Variable* copy(Variable* this)
+{
+    return VariableClass.fromIdAndValue(this->_internals->id, this->_internals->value);
 }
 
 void delete(Variable** this)

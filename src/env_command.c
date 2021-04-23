@@ -123,7 +123,15 @@ void process_u_argument(Command* this, char* argument, StringList* arguments)
 
 void prepare_modified_environment(Command* this)
 {
-    (void)this;
+    Environment* modified_environment =
+        this->_internals->ignoreExistingEnvironment ?
+            EnvironmentClass.new() :
+            shell.environment->copy(shell.environment);
+    modified_environment->unsetVariables(modified_environment, this->_internals->variablesToUnset);
+
+
+
+    shell.environment = modified_environment;
 }
 
 void run_command_with_modified_environment(Command* this)
@@ -139,7 +147,7 @@ void run_command_with_modified_environment(Command* this)
 
 inline void delete_modified_environment()
 {
-//    shell.environment->delete(shell.environment);
+    shell.environment->delete(&shell.environment);
 }
 
 void process_separate_u_argument(Command* this, char* argument)

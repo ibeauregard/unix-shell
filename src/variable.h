@@ -9,6 +9,7 @@ struct variable {
     void (*setValue)(Variable* this, char* value);
     void (*print)(Variable* this);
     char* (*toString)(Variable* this);
+    Variable* (*copy)(Variable* this);
     void (*delete)(Variable** this);
 };
 

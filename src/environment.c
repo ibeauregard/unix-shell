@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+static Environment* new();
 static Environment* from_string_array(char* envp[]);
 const struct environment_class EnvironmentClass = {
+        .new = &new,
         .fromStringArray = &from_string_array
 };
 
@@ -12,27 +14,37 @@ struct internals {
     VariableNode* head;
 };
 
-static void insert(Environment* this, Variable* variable);
 static char* get_value_from_id(Environment* this, char* id);
 static void set_variable(Environment* this, Variable* variable, bool overwrite);
 static void unset_variable(Environment* this, char* id);
+static void unset_variables(Environment* this, StringList* ids);
 static void print(Environment* this);
 static char** serialize(Environment* this);
+static Environment* copy(Environment* this);
 static void delete(Environment** this);
-Environment* from_string_array(char* envp[])
+Environment* new()
 {
     Environment* this = malloc(sizeof (Environment));
     this->_internals = malloc(sizeof (struct internals));
     this->_internals->head = NULL;
-    for (size_t i = 0; envp[i]; i++) {
-        insert(this, VariableClass.fromString(envp[i]));
-    }
     this->getValueFromId = &get_value_from_id;
     this->setVariable = &set_variable;
     this->unsetVariable = &unset_variable;
+    this->unsetVariables = &unset_variables;
     this->print = &print;
     this->serialize = &serialize;
+    this->copy = &copy;
     this->delete = &delete;
+    return this;
+}
+
+static void insert(Environment* this, Variable* variable);
+Environment* from_string_array(char* envp[])
+{
+    Environment* this = new();
+    for (size_t i = 0; envp[i]; i++) {
+        insert(this, VariableClass.fromString(envp[i]));
+    }
     return this;
 }
 
@@ -99,6 +111,15 @@ void unset_variable(Environment* this, char* id)
     }
 }
 
+void unset_variables(Environment* this, StringList* ids)
+{
+    while (!ids->isEmpty(ids)) {
+        char* id = ids->next(ids);
+        this->unsetVariable(this, id);
+        free(id);
+    }
+}
+
 void print(Environment* this)
 {
     VariableNode* node = this->_internals->head;
@@ -120,6 +141,17 @@ char** serialize(Environment* this)
     }
     serialized[i] = NULL;
     return serialized;
+}
+
+Environment* copy(Environment* this)
+{
+    Environment* copy = new();
+    VariableNode* node = this->_internals->head;
+    while (node) {
+        insert(copy, node->variable->copy(node->variable));
+        node = node->next;
+    }
+    return copy;
 }
 
 void delete(Environment** this)
