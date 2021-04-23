@@ -128,9 +128,12 @@ void prepare_modified_environment(Command* this)
             EnvironmentClass.new() :
             shell.environment->copy(shell.environment);
     modified_environment->unsetVariables(modified_environment, this->_internals->variablesToUnset);
-
-
-
+    StringList* variablesToSet = this->_internals->variablesToSet;
+    while (!variablesToSet->isEmpty(variablesToSet)) {
+        char* variable = variablesToSet->next(variablesToSet);
+        modified_environment->setVariable(modified_environment, VariableClass.fromString(variable), true);
+        free(variable);
+    }
     shell.environment = modified_environment;
 }
 

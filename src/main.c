@@ -101,7 +101,8 @@ int main(int argc, char* argv[], char* envp[])
     shell.execute(CommandLineClass.fromString("env -iu HOME roger=cyr"));
     shell.execute(CommandLineClass.fromString("env -u HOME roger=cyr eric=pickup"));
     shell.execute(CommandLineClass.fromString("env env"));
-//    shell.execute(CommandLineClass.fromString("env env env env env env"));
+    shell.execute(CommandLineClass.fromString("env env env env env env"));
+    shell.execute(CommandLineClass.fromString("env -i ROGER=cyr ERIC=pickup"));
     shell.delete();
     return EXIT_SUCCESS;
 }
