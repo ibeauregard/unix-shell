@@ -16,11 +16,12 @@ struct string_list {
     void (*delete)(StringList** this);
 };
 
+typedef bool CharTest(char c);
 typedef char* StringTransformation(char* string);
 extern const struct string_list_class {
     StringList* (*new)();
-    StringList* (*split)(char* string, char sep);
-    StringList* (*splitTransform)(char* string, char sep, StringTransformation* transformation);
+    StringList* (*split)(char* string, CharTest* is_separator);
+    StringList* (*splitTransform)(char* string, CharTest* is_separator, StringTransformation* transform);
 } StringListClass;
 
 #endif

@@ -1,6 +1,7 @@
 #include "external_command.h"
 #include "environment.h"
 #include "shell.h"
+#include "my_libc/string.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -64,7 +65,7 @@ static bool command_in_directory(char* command, char* dirpath);
 char* search_in_path(char* command)
 {
     char* path = shell.environment->getValueFromId(shell.environment, "PATH");
-    StringList* pathElements = StringListClass.split(path, ':'); free(path);
+    StringList* pathElements = StringListClass.split(path, &is_colon); free(path);
     char* pathname = NULL;
     while (!pathname && !pathElements->isEmpty(pathElements)) {
         char* directory = pathElements->next(pathElements);

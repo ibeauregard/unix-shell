@@ -1,8 +1,9 @@
 #include "command_line.h"
 #include "shell.h"
-#include "environment.h"
+#include "my_libc/string.h"
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 static CommandLine* from_string(char* string);
 static CommandLine* from_string_list(StringList* tokenList);
@@ -15,7 +16,7 @@ static char* replace_env_variables(char* string);
 static void delete(CommandLine** this);
 CommandLine* from_string(char* string)
 {
-    return from_string_list(StringListClass.splitTransform(string, ' ', &replace_env_variables));
+    return from_string_list(StringListClass.splitTransform(string, &is_space, &replace_env_variables));
 }
 
 CommandLine* from_string_list(StringList* tokenList)

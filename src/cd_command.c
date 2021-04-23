@@ -1,6 +1,7 @@
 #include "cd_command.h"
 #include "shell.h"
 #include "environment.h"
+#include "my_libc/string.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -154,7 +155,7 @@ static char* join_with_slash(char* string1, char* string2);
 static bool names_a_directory(char* string);
 void browse_cdpath(char* operand, struct state* state)
 {
-    StringList* cdpathElements = StringListClass.split(state->cdpath_value, ':');
+    StringList* cdpathElements = StringListClass.split(state->cdpath_value, &is_colon);
     while (!state->curpath && !cdpathElements->isEmpty(cdpathElements)) {
         char* pathname = cdpathElements->next(cdpathElements);
         char* concatenation = join_with_slash(pathname, operand);

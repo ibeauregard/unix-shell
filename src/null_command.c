@@ -9,5 +9,4 @@ Command* NullCommand = &(Command){
 void execute(Command* this)
 {
     (void)this;
-    puts("");
 }

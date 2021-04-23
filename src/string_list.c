@@ -3,8 +3,8 @@
 #include <string.h>
 
 static StringList* new();
-static StringList* split(char* string, char sep);
-static StringList* split_transform(char* string, char sep, StringTransformation* transformation);
+static StringList* split(char* string, CharTest* is_separator);
+static StringList* split_transform(char* string, CharTest* is_separator, StringTransformation* transform);
 const struct string_list_class StringListClass = {
         .new = &new,
         .split = &split,
@@ -12,20 +12,20 @@ const struct string_list_class StringListClass = {
 };
 
 static char* null_transformation(char* string);
-StringList* split(char* string, char sep)
+StringList* split(char* string, CharTest* is_separator)
 {
-    return split_transform(string, sep, &null_transformation);
+    return split_transform(string, is_separator, &null_transformation);
 }
 
 static void append(StringList* this, char* string);
-StringList* split_transform(char* string, char sep, StringTransformation* transformation)
+StringList* split_transform(char* string, CharTest* is_separator, StringTransformation* transform)
 {
     StringList* this = new();
     while (*string) {
-        for (; *string && *string == sep; string++);
+        for (; *string && is_separator(*string); string++);
         int j;
-        for (j = 0; string[j] && string[j] != sep; ++j);
-        if (j) append(this, transformation(strndup(string, j)));
+        for (j = 0; string[j] && !is_separator(string[j]); ++j);
+        if (j) append(this, transform(strndup(string, j)));
         string += j;
     }
     return this;
