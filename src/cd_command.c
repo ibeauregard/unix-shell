@@ -255,6 +255,7 @@ void prepend_to_curpath(struct state* state)
 
 static void process_dot_component(struct state* state, size_t component_index);
 static size_t process_dot_dot_component(struct state* state, size_t component_index);
+static void simplify_curpath(struct state* state);
 static void interrupt_if_curpath_is_empty(struct state* state);
 void make_curpath_canonical(struct state* state)
 {
@@ -271,7 +272,7 @@ void make_curpath_canonical(struct state* state)
                          || state->curpath[i + 2] == '/')) i = process_dot_dot_component(state, i);
         }
     }
-    if (!strcmp(state->curpath, "/..")) state->curpath[1] = 0;
+    simplify_curpath(state);
     interrupt_if_curpath_is_empty(state);
 }
 
@@ -324,9 +325,8 @@ static size_t get_forward_offset(struct state* state, size_t component_index);
 size_t process_dot_dot_component(struct state* state, size_t component_index)
 {
     size_t previous_component_length = get_previous_component_length(state, component_index);
-    if (previous_component_length == 0) return component_index + 2; // if there is no previous component
     state->curpath[previous_component_length] = 0;
-    if (!names_a_directory(state->curpath)) {
+    if (state->curpath[0] && !names_a_directory(state->curpath)) {
         dprintf(STDERR_FILENO, "cd: Not a directory: %s\n", state->curpath);
         state->interrupted = true;
         return component_index + 2;
@@ -339,6 +339,23 @@ size_t process_dot_dot_component(struct state* state, size_t component_index)
         state->curpath[i - backward_offset] = state->curpath[i + forward_offset];
     }
     return component_index - backward_offset;
+}
+
+void simplify_curpath(struct state* state)
+{
+    size_t curpath_len;
+    for (curpath_len = strlen(state->curpath); curpath_len > 1 && state->curpath[curpath_len - 1] == '/'; curpath_len--);
+    state->curpath[curpath_len] = 0;
+    size_t offsets[curpath_len + 1];
+    size_t offset = 0;
+    offsets[0] = offset;
+    for (size_t i = 1; i <= curpath_len; i++) {
+        if (state->curpath[i] == '/' && state->curpath[i - 1] == '/') offset++;
+        offsets[i] = offset;
+    }
+    for (size_t i = 0; i <= curpath_len; i++) {
+        state->curpath[i - offsets[i]] = state->curpath[i];
+    }
 }
 
 void interrupt_if_curpath_is_empty(struct state* state)
@@ -369,6 +386,7 @@ size_t get_backward_offset(
         size_t component_index,
         size_t previous_component_length)
 {
+    if (previous_component_length == 0) return 0;
     size_t backward_offset;
     for (backward_offset = component_index - previous_component_length + 1;
          backward_offset < component_index  && state->curpath[component_index - backward_offset - 1] != '/';

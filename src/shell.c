@@ -32,9 +32,6 @@ void execute(CommandLine* line)
 
 char* get_prompt_pwd(char* pwd)
 {
-    size_t i;
-    for (i = strlen(pwd); i > 1 && pwd[i - 1] == '/'; i--);
-    pwd[i] = 0;
     char* home = shell.environment->getValueFromId(shell.environment, "HOME");
     size_t home_length;
     for (home_length = strlen(home); home_length > 0 && home[home_length - 1] == '/'; home_length--);
