@@ -5,6 +5,7 @@
 #include "unsetenv_command.h"
 #include "cd_command.h"
 #include "env_command.h"
+#include "exit_command.h"
 #include "external_command.h"
 #include <string.h>
 
@@ -27,6 +28,8 @@ Command* from_command_line(CommandLine* line)
         return CdCommand.withArgs(line->arguments);
     } if (!strcmp(line->command, "env")) {
         return EnvCommand.withArgs(line->arguments);
+    } if (!strcmp(line->command, "exit")) {
+        return ExitCommand.withArgs(line->arguments);
     } else {
         return ExternalCommand.fromCommandLine(line);
     }
