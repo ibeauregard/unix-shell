@@ -346,15 +346,10 @@ void simplify_curpath(struct state* state)
     size_t curpath_len;
     for (curpath_len = strlen(state->curpath); curpath_len > 1 && state->curpath[curpath_len - 1] == '/'; curpath_len--);
     state->curpath[curpath_len] = 0;
-    size_t offsets[curpath_len + 1];
     size_t offset = 0;
-    offsets[0] = offset;
     for (size_t i = 1; i <= curpath_len; i++) {
         if (state->curpath[i] == '/' && state->curpath[i - 1] == '/') offset++;
-        offsets[i] = offset;
-    }
-    for (size_t i = 0; i <= curpath_len; i++) {
-        state->curpath[i - offsets[i]] = state->curpath[i];
+        state->curpath[i - offset] = state->curpath[i];
     }
 }
 
