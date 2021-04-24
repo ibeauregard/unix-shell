@@ -264,13 +264,13 @@ void make_curpath_canonical(struct state* state)
         for (; state->curpath[i]
                && !(state->curpath[i] == '.'
                     && (i == 0 || state->curpath[i - 1] == '/')); i++);
-        if (state->curpath[i]) {
-            if (state->curpath[i + 1] == 0
-                || state->curpath[i + 1] == '/') process_dot_component(state, i);
-            else if (state->curpath[i + 1] == '.'
-                     && (state->curpath[i + 2] == 0
-                         || state->curpath[i + 2] == '/')) i = process_dot_dot_component(state, i);
-        }
+        if (!state->curpath[i]) break;
+        if (state->curpath[i + 1] == 0
+            || state->curpath[i + 1] == '/') process_dot_component(state, i);
+        else if (state->curpath[i + 1] == '.'
+                 && (state->curpath[i + 2] == 0
+                     || state->curpath[i + 2] == '/')) i = process_dot_dot_component(state, i);
+        else i++;
     }
     simplify_curpath(state);
     interrupt_if_curpath_is_empty(state);
@@ -281,7 +281,7 @@ void make_curpath_relative(struct state* state)
     state->absolute_curpath = strdup(state->curpath);
     char* pwd = join_with_slash(state->pwd_value, "");
     size_t pwd_length = strlen(pwd);
-    if (!strncmp(pwd, state->curpath, pwd_length)) {
+    if (pwd_length > 1 && !strncmp(pwd, state->curpath, pwd_length)) {
         size_t curpath_length = strlen(state->curpath);
         for (size_t i = pwd_length; i <= curpath_length; i++) { // <= to copy '\0'
             state->curpath[i - pwd_length] = state->curpath[i];
