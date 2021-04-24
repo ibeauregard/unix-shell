@@ -32,7 +32,7 @@ struct internals* initialize_internals(StringList* arguments)
     internals->overwrite = false;
     if (!arguments->isEmpty(arguments) && !strcmp(arguments->peek(arguments), "-o")) {
         internals->overwrite = true;
-        free(arguments->next(arguments));
+        free(arguments->next(arguments)); // discard command's name ("setenv")
     }
     internals->variables = arguments;
     return internals;

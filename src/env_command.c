@@ -45,7 +45,7 @@ static void process_flag_argument(Command* this, StringList* arguments);
 static void process_setenv_argument(Command* this, char* argument);
 void parse_arguments(Command* this, StringList* arguments)
 {
-    free(arguments->next(arguments)); // discard "env" (program name)
+    free(arguments->next(arguments)); // discard "env" (command name)
     while (!this->_internals->parseError
            && !arguments->isEmpty(arguments)
            && arguments->peek(arguments)[0] == '-') {

@@ -16,6 +16,7 @@ Command* with_args(StringList* arguments)
 {
     Command* this = malloc(sizeof (Command));
     this->_internals = malloc(sizeof (struct internals));
+    free(arguments->next(arguments)); // discard command's name ("echo")
     this->_internals->arguments = arguments;
     this->execute = &execute;
     return this;
@@ -25,7 +26,6 @@ static void delete(Command** this);
 void execute(Command* this)
 {
     StringList* arguments = this->_internals->arguments;
-    free(arguments->next(arguments)); // do not print built-in name
     while (!arguments->isEmpty(arguments)) {
         char* argument = arguments->next(arguments);
         printf("%s ", argument);

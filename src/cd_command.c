@@ -43,7 +43,7 @@ void initialize_internals(Command* this)
 static void process_flag_argument(Command* this, char* argument);
 void parse_arguments(Command* this, StringList* arguments)
 {
-    free(arguments->next(arguments)); // discard 'cd' argument (program name)
+    free(arguments->next(arguments)); // discard 'cd' argument (command name)
     char* next_argument;
     while (!this->_internals->parseError
             && !arguments->isEmpty(arguments)

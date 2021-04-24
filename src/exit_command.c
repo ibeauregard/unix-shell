@@ -15,7 +15,7 @@ Command* with_args(StringList* arguments)
 {
     Command* this = malloc(sizeof (Command));
     this->_internals = malloc(sizeof (struct internals));
-    free(arguments->next(arguments)); // discard program name ("exit")
+    free(arguments->next(arguments)); // discard command name ("exit")
     if (!arguments->isEmpty(arguments)) {
         char* argument = arguments->next(arguments);
         this->_internals->status = atoi(argument);

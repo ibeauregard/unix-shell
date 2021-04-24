@@ -17,6 +17,7 @@ Command* with_args(StringList* arguments)
 {
     Command* this = malloc(sizeof (Command));
     this->_internals = malloc(sizeof (struct internals));
+    free(arguments->next(arguments)); // discard command's name ("unsetenv")
     this->_internals->variableIds = arguments;
     this->execute = &execute;
     return this;
