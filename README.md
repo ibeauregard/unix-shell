@@ -12,7 +12,7 @@ To compile the application, run `make` from the project's root directory.
 
 ## Running the application
 
-After the project has compiled, run `./my_zsh` from the project's root directory.
+After the project has compiled, run the `my_zsh` executable file.
 
 ## echo
 
