@@ -9,12 +9,12 @@
 #include "external_command.h"
 #include <string.h>
 
-static const ConcreteCommandClass* from_command_line(char* command);
+static const ConcreteCommandClass* from_command(char* command);
 const struct concrete_command_class_factory ConcreteCommandClassFactory = {
-        .fromCommand = &from_command_line
+        .fromCommand = &from_command
 };
 
-const ConcreteCommandClass* from_command_line(char* command)
+const ConcreteCommandClass* from_command(char* command)
 {
     if (!command) {
         return &NullCommandClass;
