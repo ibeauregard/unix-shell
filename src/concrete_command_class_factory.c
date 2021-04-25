@@ -9,26 +9,26 @@
 #include "external_command.h"
 #include <string.h>
 
-static const ConcreteCommandClass* from_command(char* command);
+static const ConcreteCommandClass* from_command_name(char* name);
 const struct concrete_command_class_factory ConcreteCommandClassFactory = {
-        .fromCommand = &from_command
+        .fromCommandName = &from_command_name
 };
 
-const ConcreteCommandClass* from_command(char* command)
+const ConcreteCommandClass* from_command_name(char* name)
 {
-    if (!command) {
+    if (!name) {
         return &NullCommandClass;
-    } if (!strcmp(command, "echo")) {
+    } if (!strcmp(name, "echo")) {
         return &EchoCommandClass;
-    } if (!strcmp(command, "setenv")) {
+    } if (!strcmp(name, "setenv")) {
         return &SetenvCommandClass;
-    } if (!strcmp(command, "unsetenv")) {
+    } if (!strcmp(name, "unsetenv")) {
         return &UnsetenvCommandClass;
-    } if  (!strcmp(command, "cd")) {
+    } if  (!strcmp(name, "cd")) {
         return &CdCommandClass;
-    } if (!strcmp(command, "env")) {
+    } if (!strcmp(name, "env")) {
         return &EnvCommandClass;
-    } if (!strcmp(command, "exit")) {
+    } if (!strcmp(name, "exit")) {
         return &ExitCommandClass;
     } else {
         return &ExternalCommandClass;

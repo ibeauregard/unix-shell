@@ -23,7 +23,7 @@ void display_prompt()
 
 void execute(CommandLine* line)
 {
-    Command* command = ConcreteCommandClassFactory.fromCommand(line->command)->fromArguments(line->arguments);
+    Command* command = ConcreteCommandClassFactory.fromCommandName(line->command)->fromArguments(line->arguments);
     command->execute(command);
     line->delete(&line);
     puts("");

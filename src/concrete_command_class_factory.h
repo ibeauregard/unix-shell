@@ -4,7 +4,7 @@
 #include "concrete_command_class.h"
 
 extern const struct concrete_command_class_factory {
-    const ConcreteCommandClass* (*fromCommand)(char* command);
+    const ConcreteCommandClass* (*fromCommandName)(char* name);
 } ConcreteCommandClassFactory;
 
 #endif
