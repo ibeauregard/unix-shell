@@ -10,7 +10,7 @@
 #include <limits.h>
 
 static Command* from_arguments(StringList* arguments);
-const struct cd_command CdCommand = {
+const ConcreteCommandClass CdCommandClass = {
         .fromArguments = &from_arguments
 };
 

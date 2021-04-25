@@ -6,7 +6,7 @@
 #include <string.h>
 
 static Command* from_arguments(StringList* arguments);
-const struct setenv_command SetenvCommand = {
+const ConcreteCommandClass SetenvCommandClass = {
         .fromArguments = &from_arguments
 };
 

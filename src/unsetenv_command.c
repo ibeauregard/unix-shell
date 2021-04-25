@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 static Command* from_arguments(StringList* arguments);
-const struct unsetenv_command UnsetenvCommand = {
+const ConcreteCommandClass UnsetenvCommandClass = {
         .fromArguments = &from_arguments
 };
 

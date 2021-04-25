@@ -10,7 +10,7 @@
 #include <dirent.h>
 
 static Command* from_arguments(StringList* commandLine);
-const struct external_command ExternalCommand = {
+const ConcreteCommandClass ExternalCommandClass = {
         .fromArguments = &from_arguments
 };
 

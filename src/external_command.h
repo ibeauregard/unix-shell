@@ -1,11 +1,8 @@
 #ifndef EXTERNAL_COMMAND_H
 #define EXTERNAL_COMMAND_H
 
-#include "command.h"
-#include "string_list.h"
+#include "concrete_command_class.h"
 
-extern const struct external_command {
-    Command* (*fromArguments)(StringList* arguments);
-} ExternalCommand;
+extern const ConcreteCommandClass ExternalCommandClass;
 
 #endif

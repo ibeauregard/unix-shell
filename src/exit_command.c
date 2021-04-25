@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 static Command* from_arguments(StringList* arguments);
-const struct exit_command ExitCommand = {
+const ConcreteCommandClass ExitCommandClass = {
         .fromArguments = &from_arguments
 };
 

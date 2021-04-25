@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 static Command* from_arguments(StringList* arguments);
-const struct echo_command EchoCommand = {
+const ConcreteCommandClass EchoCommandClass = {
         .fromArguments = &from_arguments
 };
 

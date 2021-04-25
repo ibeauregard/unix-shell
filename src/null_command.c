@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 static Command* from_arguments(StringList* arguments);
-const struct null_command NullCommand = {
+const ConcreteCommandClass NullCommandClass = {
         .fromArguments = &from_arguments
 };
 

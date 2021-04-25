@@ -1,11 +1,8 @@
 #ifndef UNSETENV_COMMAND_H
 #define UNSETENV_COMMAND_H
 
-#include "command.h"
-#include "string_list.h"
+#include "concrete_command_class.h"
 
-extern const struct unsetenv_command {
-    Command* (*fromArguments)(StringList* arguments);
-} UnsetenvCommand;
+extern const ConcreteCommandClass UnsetenvCommandClass;
 
 #endif

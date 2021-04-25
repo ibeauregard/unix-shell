@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 static Command* from_arguments(StringList* arguments);
-const struct env_command EnvCommand = {
+const ConcreteCommandClass EnvCommandClass = {
         .fromArguments = &from_arguments
 };
 

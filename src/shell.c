@@ -1,6 +1,6 @@
 #include "shell.h"
 #include "command.h"
-#include "command_factory.h"
+#include "concrete_command_class_factory.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,7 +24,7 @@ void display_prompt()
 
 void execute(CommandLine* line)
 {
-    Command* command = CommandFactory.fromCommandLine(line);
+    Command* command = ConcreteCommandClassFactory.fromCommand(line->command)->fromArguments(line->arguments);
     command->execute(command);
     line->delete(&line);
     puts("");
