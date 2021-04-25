@@ -18,7 +18,7 @@ static char* get_prompt_pwd(char* pwd);
 void display_prompt()
 {
     char* pwd = shell.environment->getValueFromId(shell.environment, "PWD");
-    printf("%s\n> ", get_prompt_pwd(pwd));
+    printf("[%s]\n> ", get_prompt_pwd(pwd));
     free(pwd);
 }
 
