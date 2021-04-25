@@ -31,6 +31,6 @@ Command* from_command_line(CommandLine* line)
     } if (!strcmp(line->command, "exit")) {
         return ExitCommand.fromArguments(line->arguments);
     } else {
-        return ExternalCommand.fromArguments(line);
+        return ExternalCommand.fromArguments(line->arguments);
     }
 }

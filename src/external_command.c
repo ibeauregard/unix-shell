@@ -9,17 +9,17 @@
 #include <errno.h>
 #include <dirent.h>
 
-static Command* from_arguments(CommandLine* commandLine);
+static Command* from_arguments(StringList* commandLine);
 const struct external_command ExternalCommand = {
         .fromArguments = &from_arguments
 };
 
 struct internals {
-    CommandLine* commandLine;
+    StringList* commandLine;
 };
 
 static void execute(Command* this);
-Command* from_arguments(CommandLine* commandLine)
+Command* from_arguments(StringList* commandLine)
 {
     Command* this = malloc(sizeof (Command));
     this->_internals = malloc(sizeof (struct internals));
@@ -33,7 +33,8 @@ static void fork_and_execute(Command* this, char* pathname);
 static void delete(Command** this);
 void execute(Command* this)
 {
-    char* invokedCommand = this->_internals->commandLine->command;
+    StringList* commandLine = this->_internals->commandLine;
+    char* invokedCommand = commandLine->peek(commandLine);
     char* pathname = get_command_pathname(invokedCommand);
     if (pathname) {
         fork_and_execute(this, pathname);
@@ -81,7 +82,7 @@ char* search_in_path(char* command)
 
 void child_process_execute(Command* this, char* pathname)
 {
-    StringList* arguments = this->_internals->commandLine->arguments;
+    StringList* arguments = this->_internals->commandLine;
     char** argv = arguments->toStringArray(arguments);
     Environment* environment = shell.environment;
     char** envp = environment->serialize(environment);
