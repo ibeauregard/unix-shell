@@ -144,7 +144,7 @@ exit -- cause the command line interpreter to exit
 
 ### DESCRIPTION
 
-The `exit` utility shall cause the command-line interpreter to exit from its current execution environment with the exit status specified by the unsigned 8-bit integer `n`. If n is specified, but cannot be converted to an unsigned integer value, the exit status is 0. If n is specified, but its value is not between 0 and 255 inclusively, the exit status is n % 256. Note that for any integer n, `n % 256 == n - 256 * floor(n // 256)`, where `floor(x)` rounds `x` towards minus infinity.
+The `exit` utility shall cause the command-line interpreter to exit from its current execution environment with the exit status specified by the unsigned 8-bit integer `n`. If n is specified, but cannot be converted to an unsigned integer value, the exit status is 0. If n is specified, but its value is not between 0 and 255 inclusively, the exit status is n % 256. Note that for any integer n, `n % 256 == n - 256 * floor(n / 256)`, where `floor(x)` rounds `x` towards minus infinity.
 
 ## Implementation notes
 
