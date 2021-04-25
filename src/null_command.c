@@ -10,12 +10,11 @@ static void execute(Command* this);
 Command* from_arguments(StringList* arguments)
 {
     (void) arguments;
-    Command* this = malloc(sizeof (Command));
-    this->execute = &execute;
-    return this;
+    static Command null_command = {.execute = &execute};
+    return &null_command;
 }
 
 void execute(Command* this)
 {
-    free(this);
+    (void) this;
 }
