@@ -1,5 +1,4 @@
 #include "external_command.h"
-#include "environment.h"
 #include "shell.h"
 #include "my_libc/string.h"
 #include <stdlib.h>

@@ -1,6 +1,5 @@
 #include "env_command.h"
 #include "shell.h"
-#include "environment.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

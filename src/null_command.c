@@ -1,5 +1,4 @@
 #include "null_command.h"
-#include <stdlib.h>
 
 static Command* from_arguments(StringList* arguments);
 const ConcreteCommandClass NullCommandClass = {

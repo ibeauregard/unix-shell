@@ -1,7 +1,5 @@
 #include "setenv_command.h"
-#include "variable.h"
 #include "shell.h"
-#include "environment.h"
 #include <stdlib.h>
 #include <string.h>
 

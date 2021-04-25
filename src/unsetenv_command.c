@@ -1,6 +1,5 @@
 #include "unsetenv_command.h"
 #include "shell.h"
-#include "environment.h"
 #include <stdlib.h>
 
 static Command* from_arguments(StringList* arguments);

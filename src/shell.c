@@ -1,5 +1,4 @@
 #include "shell.h"
-#include "command.h"
 #include "concrete_command_class_factory.h"
 #include <stdio.h>
 #include <stdlib.h>

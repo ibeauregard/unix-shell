@@ -3,7 +3,6 @@
 #include "my_libc/string.h"
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 static CommandLine* from_string(char* string);
 static CommandLine* from_string_list(StringList* tokenList);

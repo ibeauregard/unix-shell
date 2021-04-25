@@ -1,6 +1,5 @@
 #include "cd_command.h"
 #include "shell.h"
-#include "environment.h"
 #include "my_libc/string.h"
 #include <stdlib.h>
 #include <stdio.h>
