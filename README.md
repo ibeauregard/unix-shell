@@ -150,6 +150,8 @@ The `exit` utility shall cause the command-line interpreter to exit from its cur
 
 As a central architecture principle, a `Command` interface is defined, which consists of only one method named `execute`. All commands implement the `Command` interface, and throughout the program, the code only deals with the `Command` abstract type. There are no `CdCommand` or `EchoCommand` types, nor any other type representing a concrete command.
 
-When the application has to build a concrete command, the choice of the right concrete class is centralized in one place, i.e. the `CommandFactory`.
+There is, however, an abstract type representing a concrete command _class_: `ConcreteCommandClass`, which consists of a single method named `fromArguments`. All concrete command types implement the `ConcreteCommandClass` interface, in order to provide a _uniform_ way to construct a concrete command from a list of arguments.
+
+When the application has to build a concrete command, the choice of the right concrete command class is centralized in one place, i.e. the `ConcreteCommandClassFactory`.
 
 The code base also generally uses a coding style called "C-plus", emulating object-oriented programming and encapsulation of data with the C programming language.
