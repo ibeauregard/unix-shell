@@ -1,4 +1,4 @@
-#include "concrete_command_class_factory.h"
+#include "concrete_command_class_selector.h"
 #include "null_command.h"
 #include "echo_command.h"
 #include "setenv_command.h"
@@ -10,7 +10,7 @@
 #include <string.h>
 
 static const ConcreteCommandClass* from_command_name(char* name);
-const struct concrete_command_class_factory ConcreteCommandClassFactory = {
+const struct concrete_command_class_selector ConcreteCommandClassSelector = {
         .fromCommandName = &from_command_name
 };
 
