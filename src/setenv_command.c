@@ -5,9 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-static Command* with_args(StringList* arguments);
+static Command* from_arguments(StringList* arguments);
 const struct setenv_command SetenvCommand = {
-        .withArgs = &with_args
+        .fromArguments = &from_arguments
 };
 
 struct internals {
@@ -17,7 +17,7 @@ struct internals {
 
 static struct internals* initialize_internals(StringList* arguments);
 static void execute(Command* this);
-Command* with_args(StringList* arguments)
+Command* from_arguments(StringList* arguments)
 {
     Command* this = malloc(sizeof (Command));
     this->_internals = initialize_internals(arguments);

@@ -5,7 +5,7 @@
 #include "string_list.h"
 
 extern const struct exit_command {
-    Command* (*withArgs)(StringList* arguments);
+    Command* (*fromArguments)(StringList* arguments);
 } ExitCommand;
 
 #endif

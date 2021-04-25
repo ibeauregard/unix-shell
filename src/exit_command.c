@@ -1,9 +1,9 @@
 #include "exit_command.h"
 #include <stdlib.h>
 
-static Command* with_args(StringList* arguments);
+static Command* from_arguments(StringList* arguments);
 const struct exit_command ExitCommand = {
-        .withArgs = &with_args
+        .fromArguments = &from_arguments
 };
 
 struct internals {
@@ -11,7 +11,7 @@ struct internals {
 };
 
 static void execute(Command* this);
-Command* with_args(StringList* arguments)
+Command* from_arguments(StringList* arguments)
 {
     Command* this = malloc(sizeof (Command));
     this->_internals = malloc(sizeof (struct internals));

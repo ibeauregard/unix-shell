@@ -9,15 +9,15 @@
 #include <errno.h>
 #include <limits.h>
 
-static Command* with_args(StringList* arguments);
+static Command* from_arguments(StringList* arguments);
 const struct cd_command CdCommand = {
-        .withArgs = &with_args
+        .fromArguments = &from_arguments
 };
 
 static void initialize_internals(Command* this);
 static void parse_arguments(Command* this, StringList* arguments);
 static void execute(Command* this);
-Command* with_args(StringList* arguments)
+Command* from_arguments(StringList* arguments)
 {
     Command* this = malloc(sizeof (Command));
     initialize_internals(this);

@@ -5,7 +5,7 @@
 #include "command_line.h"
 
 extern const struct external_command {
-    Command* (*fromCommandLine)(CommandLine* commandLine);
+    Command* (*fromArguments)(CommandLine* commandLine);
 } ExternalCommand;
 
 #endif

@@ -5,15 +5,15 @@
 #include <string.h>
 #include <stdio.h>
 
-static Command* with_args(StringList* arguments);
+static Command* from_arguments(StringList* arguments);
 const struct env_command EnvCommand = {
-        .withArgs = &with_args
+        .fromArguments = &from_arguments
 };
 
 static struct internals* new_internals();
 static void parse_arguments(Command* this, StringList* arguments);
 static void execute(Command* this);
-Command* with_args(StringList* arguments)
+Command* from_arguments(StringList* arguments)
 {
     Command* this = malloc(sizeof (Command));
     this->_internals = new_internals();

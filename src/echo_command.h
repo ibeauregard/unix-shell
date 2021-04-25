@@ -5,7 +5,7 @@
 #include "string_list.h"
 
 extern const struct echo_command {
-    Command* (*withArgs)(StringList* arguments);
+    Command* (*fromArguments)(StringList* arguments);
 } EchoCommand;
 
 #endif

@@ -9,9 +9,9 @@
 #include <errno.h>
 #include <dirent.h>
 
-static Command* from_command_line(CommandLine* commandLine);
+static Command* from_arguments(CommandLine* commandLine);
 const struct external_command ExternalCommand = {
-        .fromCommandLine = &from_command_line
+        .fromArguments = &from_arguments
 };
 
 struct internals {
@@ -19,7 +19,7 @@ struct internals {
 };
 
 static void execute(Command* this);
-Command* from_command_line(CommandLine* commandLine)
+Command* from_arguments(CommandLine* commandLine)
 {
     Command* this = malloc(sizeof (Command));
     this->_internals = malloc(sizeof (struct internals));

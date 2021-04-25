@@ -1,13 +1,13 @@
 #include "null_command.h"
 #include <stdlib.h>
 
-static Command* with_args(StringList* arguments);
+static Command* from_arguments(StringList* arguments);
 const struct null_command NullCommand = {
-        .withArgs = &with_args
+        .fromArguments = &from_arguments
 };
 
 static void execute(Command* this);
-Command* with_args(StringList* arguments)
+Command* from_arguments(StringList* arguments)
 {
     (void) arguments;
     Command* this = malloc(sizeof (Command));
