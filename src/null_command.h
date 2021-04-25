@@ -2,7 +2,10 @@
 #define NULL_COMMAND_H
 
 #include "command.h"
+#include "string_list.h"
 
-extern Command* NullCommand;
+extern const struct null_command {
+    Command* (*withArgs)(StringList* arguments);
+} NullCommand;
 
 #endif

@@ -17,7 +17,7 @@ const struct command_factory CommandFactory = {
 Command* from_command_line(CommandLine* line)
 {
     if (!line->command) {
-        return NullCommand;
+        return NullCommand.withArgs(line->arguments);
     } if (!strcmp(line->command, "echo")) {
         return EchoCommand.withArgs(line->arguments);
     } if (!strcmp(line->command, "setenv")) {
