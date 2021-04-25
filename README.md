@@ -119,7 +119,7 @@ env -- set environment and execute command, or print environment
 
 The `env` built-in executes another utility after modifying the environment as specified on the command line.  Each `name=value` option specifies the setting of an environment variable, `name`, with a value of `value`.  All such environment variables are set before the utility is executed.
 
-If no utility is specified, env prints out the names and values of the variables in the environment, with one name/value pair per line.
+If no utility is specified, `env` prints out the names and values of the variables in the environment, with one name/value pair per line.
 
 ### OPTIONS
 
