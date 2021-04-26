@@ -9,7 +9,7 @@ const ConcreteCommandClass EnvCommandClass = {
         .fromArguments = &from_arguments
 };
 
-static struct internals* new_internals();
+static struct internals* new_internals(void);
 static void parse_arguments(Command* this, StringList* arguments);
 static void execute(Command* this);
 Command* from_arguments(StringList* arguments)
@@ -29,7 +29,7 @@ struct internals {
     StringList* command;
 };
 
-struct internals* new_internals()
+struct internals* new_internals(void)
 {
     struct internals* internals = malloc(sizeof (struct internals));
     internals->parseError = false;
@@ -94,7 +94,7 @@ void process_setenv_argument(Command* this, char* argument)
 
 static void prepare_modified_environment(Command* this);
 static void run_command_with_modified_environment(Command* this);
-static void delete_modified_environment();
+static void delete_modified_environment(void);
 void do_execute(Command* this)
 {
     Environment* existing_environment = shell.environment;
@@ -142,7 +142,7 @@ void run_command_with_modified_environment(Command* this)
     }
 }
 
-inline void delete_modified_environment()
+inline void delete_modified_environment(void)
 {
     shell.environment->delete(&shell.environment);
 }

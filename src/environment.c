@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-static Environment* new();
+static Environment* new(void);
 static Environment* from_string_array(char* envp[]);
 const struct environment_class EnvironmentClass = {
         .new = &new,
@@ -23,7 +23,7 @@ static void print(Environment* this);
 static char** serialize(Environment* this);
 static Environment* copy(Environment* this);
 static void delete(Environment** this);
-Environment* new()
+Environment* new(void)
 {
     Environment* this = malloc(sizeof (Environment));
     this->_internals = malloc(sizeof (struct internals));

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-static StringList* new();
+static StringList* new(void);
 static StringList* split(char* string, CharTest* is_separator);
 static StringList* split_transform(char* string, CharTest* is_separator, StringTransformation* transform);
 const struct string_list_class StringListClass = {
@@ -49,7 +49,7 @@ static bool is_empty(StringList* this);
 static char** to_string_array(StringList* this);
 static StringList* deep_copy(StringList* this);
 static void delete(StringList** this);
-StringList* new()
+StringList* new(void)
 {
     StringList* this = malloc(sizeof (StringList));
     this->_internals = malloc(sizeof (struct internals));

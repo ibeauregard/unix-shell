@@ -6,9 +6,9 @@
 
 extern struct shell {
     Environment* environment;
-    void (*displayPrompt)();
+    void (*displayPrompt)(void);
     void (*execute)(CommandLine* commandLine);
-    void (*delete)();
+    void (*delete)(void);
 } shell;
 
 #endif

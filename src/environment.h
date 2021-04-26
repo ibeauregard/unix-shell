@@ -20,7 +20,7 @@ struct environment {
 };
 
 extern const struct environment_class {
-    Environment* (*new)();
+    Environment* (*new)(void);
     Environment* (*fromStringArray)(char* envp[]);
 } EnvironmentClass;
 

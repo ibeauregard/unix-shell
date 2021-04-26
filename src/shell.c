@@ -4,9 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void display_prompt();
+static void display_prompt(void);
 static void execute(CommandLine* line);
-static void delete();
+static void delete(void);
 struct shell shell = {
         .displayPrompt = &display_prompt,
         .execute = &execute,
@@ -14,7 +14,7 @@ struct shell shell = {
 };
 
 static char* get_prompt_pwd(char* pwd);
-void display_prompt()
+void display_prompt(void)
 {
     char* pwd = shell.environment->getValueFromId(shell.environment, "PWD");
     printf("[%s]\n> ", get_prompt_pwd(pwd));
@@ -43,7 +43,7 @@ char* get_prompt_pwd(char* pwd)
     return pwd;
 }
 
-void delete()
+void delete(void)
 {
     shell.environment->delete(&shell.environment);
 }

@@ -19,7 +19,7 @@ struct string_list {
 typedef bool CharTest(char c);
 typedef char* StringTransformation(char* string);
 extern const struct string_list_class {
-    StringList* (*new)();
+    StringList* (*new)(void);
     StringList* (*split)(char* string, CharTest* is_separator);
     StringList* (*splitTransform)(char* string, CharTest* is_separator, StringTransformation* transform);
 } StringListClass;
