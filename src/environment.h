@@ -5,6 +5,8 @@
 #include "string_list.h"
 #include <stdbool.h>
 
+extern char** environ;
+
 typedef struct environment Environment;
 struct environment {
     struct internals* _internals;

@@ -5,10 +5,9 @@
 #include <string.h>
 #include <ctype.h>
 
-int main(int argc, char* argv[], char* envp[])
+int main(void)
 {
-    (void) argc, (void) argv;
-    shell.environment = EnvironmentClass.fromStringArray(envp);
+    shell.environment = EnvironmentClass.fromStringArray(environ);
     shell.displayPrompt();
     char* line = NULL;
     size_t length = 0;
