@@ -55,6 +55,10 @@ void fork_and_execute(Command* this, char* pathname)
 {
     pid_t pid = fork();
     if (pid == 0) child_process_execute(this, pathname);
+    else if (pid == -1) {
+        dprintf(STDERR_FILENO, "my_zsh: fork failed: %s\n", strerror(errno));
+        return;
+    }
     int status;
     do {
         waitpid(pid, &status, WUNTRACED);
