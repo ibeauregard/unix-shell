@@ -61,7 +61,15 @@ void fork_and_execute(Command* this, char* pathname)
     }
     int status;
     do {
-        waitpid(pid, &status, WUNTRACED);
+        if (waitpid(pid, &status, 0) == -1) {
+            dprintf(STDERR_FILENO, "my_zsh: waitpid failed: %s\n", strerror(errno));
+            break;
+        }
+        if (WIFSIGNALED(status)) {
+            dprintf(STDERR_FILENO,
+                    "[%d]    %d %s %s\n",
+                    WIFSIGNALED(status), pid, strerror(WTERMSIG(status)), pathname);
+        }
     } while (!WIFEXITED(status) && !WIFSIGNALED(status));
 }
 
