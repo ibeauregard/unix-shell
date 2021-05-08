@@ -68,7 +68,7 @@ void fork_and_execute(Command* this, char* pathname)
         if (WIFSIGNALED(status)) {
             dprintf(STDERR_FILENO,
                     "[%d]    %d %s %s\n",
-                    WIFSIGNALED(status), pid, strerror(WTERMSIG(status)), pathname);
+                    WIFSIGNALED(status), pid, strsignal(WTERMSIG(status)), pathname);
         }
     } while (!WIFEXITED(status) && !WIFSIGNALED(status));
 }
