@@ -18,7 +18,7 @@ struct environment {
     void (*print)(Environment* this);
     char** (*serialize)(Environment* this);
     Environment* (*copy)(Environment* this);
-    void(*delete)(Environment** this);
+    void (*delete)(Environment** this);
 };
 
 extern const struct environment_class {
