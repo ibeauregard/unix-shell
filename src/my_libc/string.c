@@ -4,17 +4,17 @@
 
 char* strstrip (char* string)
 {
-    while (isspace((unsigned char) *string)) string++;
+    while (isspace(*string)) string++;
     if (*string == 0) return string;
     char* end = string + strlen(string);
-    while (isspace((unsigned char)end[-1])) end--;
+    while (isspace(end[-1])) end--;
     *end = 0;
     return string;
 }
 
 inline bool is_space(char c)
 {
-    return isspace((unsigned char) c);
+    return isspace(c);
 }
 
 inline bool is_colon(char c)
