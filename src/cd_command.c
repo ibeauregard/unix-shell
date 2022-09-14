@@ -310,7 +310,7 @@ void process_dot_component(struct state* state, size_t component_index)
     size_t offset;
     for (offset = 1; state->curpath[component_index + offset] == '/'; offset++);
     size_t path_length = strlen(state->curpath);
-    for (size_t i = component_index + offset; i <= path_length; i++) { // <= to copy '\0'
+    for (size_t i = component_index + offset; i <= path_length; i++) { //  use '<=' to copy '\0'
         state->curpath[i - offset] = state->curpath[i];
     }
 }
@@ -383,7 +383,7 @@ size_t get_backward_offset(
     if (previous_component_length == 0) return 0;
     size_t backward_offset;
     for (backward_offset = component_index - previous_component_length + 1;
-         backward_offset < component_index  && state->curpath[component_index - backward_offset - 1] != '/';
+         backward_offset < component_index && state->curpath[component_index - backward_offset - 1] != '/';
          backward_offset++);
     return backward_offset;
 }
